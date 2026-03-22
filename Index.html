@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DiscoveryGuide V1.03</title>
+<style>
+:root{
+  --ink:#16314b; --muted:#5f7388; --line:#d7e2ee; --brand:#0f4c81; --brand2:#2a6da8;
+  --soft:#eef4fb; --pill:#e8f0fb; --shadow:0 10px 30px rgba(20,42,70,.08); --card:#fff;
+  --overlay:rgba(23,50,77,.44); --okbg:#eef7f5; --success:#0f766e; --warnbg:#fff7ed; --warn:#b45309; --accent:#d6a84f; --accent-soft:#fff7e8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#edf4fb 0%, #f8fbfe 100%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 42px}
+.hero{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-radius:24px;padding:14px 16px 14px;box-shadow:var(--shadow);margin-bottom:14px}
+.hero h1{font-size:1.28rem;margin:0 0 6px}
+.hero p{margin:0;opacity:.94;font-size:.93rem;line-height:1.45}
+.small-note{font-size:.8rem;opacity:.9;margin-top:10px}
+.statusbar{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 0}
+.badge{display:inline-block;padding:8px 10px;border-radius:999px;font-size:.78rem;font-weight:800}
+.badge.online{background:var(--okbg);color:var(--success)}
+.badge.local{background:#eef2ff;color:#3746a6}
+.badge.offline{background:var(--warnbg);color:var(--warn)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 14px;position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#edf4fb 0%, #f8fbfe 100%);padding-top:6px;padding-bottom:4px}
+.tab-btn{border:none;background:#fff;color:var(--brand);padding:12px 8px;border-radius:14px;font-weight:700;box-shadow:var(--shadow);cursor:pointer;font-size:.88rem}
+.tab-btn.active{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff}
+.panel{display:none;background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);border:1px solid #eef2f7}
+.panel.active{display:block}
+h2{font-size:1.08rem;margin:0 0 8px}
+.sub{color:var(--muted);font-size:.9rem;margin:0 0 14px;line-height:1.45}
+label{display:block;font-size:.88rem;font-weight:700;margin:12px 0 6px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.95rem;background:#fff;color:var(--ink)}
+textarea{min-height:92px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.research-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{border:1px solid #c9d7e7;background:var(--pill);color:var(--brand);padding:10px 12px;border-radius:999px;font-size:.86rem;font-weight:700;cursor:pointer;user-select:none}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button.primary,button.secondary,button.inline,button.nextbtn,button.crm-btn,button.ghost{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer}
+button.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;flex:1}
+button.secondary{background:#e8eef6;color:var(--ink)}
+button.inline{background:#e8eef6;color:var(--brand);white-space:nowrap}
+button.nextbtn{width:100%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;text-align:center;box-shadow:var(--shadow);font-size:.96rem}
+button.crm-btn{background:var(--okbg);color:var(--success);border:1px solid #c7eadf;cursor:default}
+button.ghost{background:#fff;border:1px solid #d7e3ef;color:var(--ink)}
+.section-title{font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;font-weight:800}
+.summary-box,.research-report,.mini-card{background:#f8fbff;border:1px solid #dce9f8;border-radius:14px;padding:14px;white-space:pre-wrap;line-height:1.5;font-size:.94rem}
+.research-report{display:none;margin-top:14px}
+.research-actions{display:none;gap:10px;flex-wrap:wrap;margin-top:12px}
+.question-card{background:var(--soft);border:1px solid #d9e7f7;padding:16px;border-radius:16px;margin:10px 0 14px}
+.question-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:6px}
+.question-text{font-size:1.12rem;line-height:1.4;font-weight:800;margin-bottom:10px}
+.helper{color:var(--muted);font-size:.84rem;line-height:1.4;margin-top:12px}
+.optional-note{margin-top:12px;background:#fff;border:1px dashed #cddced;border-radius:12px;padding:10px}
+.qa-progress{display:flex;gap:8px;margin:12px 0 16px}
+.qa-dot{flex:1;height:8px;border-radius:999px;background:#dbe6f3}
+.qa-dot.active{background:var(--brand)}
+.overlay{position:fixed;inset:0;background:var(--overlay);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.overlay.open{display:flex}
+.popup{width:min(560px,100%);background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.22);padding:14px 16px 14px;border:1px solid #dce7f6}
+.popup h3{margin:0 0 8px;font-size:1.05rem}
+.popup ul{margin:8px 0 0 18px;padding:0}
+.popup li{margin:6px 0}
+.value-popup{background:linear-gradient(180deg,#eef5ff 0%, #f8fbff 100%);border:2px solid #b7cff0;box-shadow:0 24px 70px rgba(29,79,145,.22)}
+.value-header{background:linear-gradient(135deg,#2a5ea2,#1d4f91);color:#fff;border-radius:18px;padding:14px 14px 12px;margin:-2px -2px 14px}
+.value-header h3{margin:0 0 4px;font-size:1.12rem}
+.value-grid{display:grid;gap:10px}
+.value-card{background:#fff;border:1px solid #d6e4f8;border-radius:16px;padding:12px}
+.value-card strong{display:block;margin-bottom:6px}
+.hidden{display:none !important}
+.answer-log-item{padding:10px 0;border-bottom:1px solid #ebf1f7}
+.answer-log-item:last-child{border-bottom:none}
+.footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:16px}
+.pill-note{display:inline-block;margin-top:8px;background:var(--accent-soft);color:#765314;padding:8px 10px;border-radius:999px;font-size:.8rem;font-weight:700}
+.small-inline{font-size:.8rem;color:var(--muted)}
+.recent-session-item{padding:10px 0;border-bottom:1px solid #e6eef7}
+.recent-session-item:last-child{border-bottom:none}
+.recent-session-btn{width:100%;text-align:left;background:#fff;border:1px solid #d7e3ef;color:var(--ink);padding:12px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+.popup-actions-sticky{position:sticky;bottom:-2px;background:#fff;padding-top:12px;margin-top:12px;border-top:1px solid #e6eef7}
+#precallBody .summary-box{max-height:none}
+@media (max-width:700px){.row,.triple{grid-template-columns:1fr}}
+
+/* Admin dashboard fixes */
+#adminOverlay .popup{max-height:92dvh;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#adminOverlay .admin-nav{position:sticky;top:-2px;background:#fff;z-index:4;padding-bottom:10px;border-bottom:1px solid #e6eef7;margin-bottom:10px}
+#adminOverlay .admin-section{display:none}
+#adminOverlay .admin-section.active{display:block}
+.admin-page{display:none}
+.admin-page.active{display:block}
+#adminOverlay .admin-scroll-box{max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid #e6eef7;padding-top:8px}
+#adminOverlay .admin-create-box{position:sticky;top:48px;background:#fff;z-index:3;padding-bottom:10px}
+#adminOverlay .admin-helper{font-size:.84rem;color:var(--muted);margin:6px 0 10px}
+.admin-popup{max-height:calc(100dvh - 20px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
+
+</style>
+</head>
+<body>
+<div class="wrap" id="topPage">
+  
+<div class="hero" id="heroBox">
+    <div style="background:#ffffff;border-radius:16px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:center;align-items:center">
+      <img src="assets/cw-logo-wide.png" alt="City Wide Facility Solutions" style="max-width:100%;height:auto;max-height:62px;display:block;">
+    </div>
+
+    <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <h1 style="margin-top:0">DiscoveryGuide</h1>
+        <p style="max-width:620px">Structured discovery workflow built to clarify pain points, reinforce value, and prepare the next step toward proposal delivery.</p>
+      </div>
+      <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:10px 12px;min-width:220px">
+        <div style="font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;opacity:.9">City Wide Principles</div>
+        <div style="font-size:.95rem;font-weight:800;margin-top:4px">We represent you.</div>
+        <div style="font-size:.85rem;opacity:.94;margin-top:4px">One point of contact • streamlined communication • 20+ additional services</div>
+      </div>
+    </div>
+    <div class="small-note">Fill what you know — the rest will come from discovery. Built around the City Wide approach to simplify operations and reduce management burden.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:.82rem;font-weight:700;opacity:.95"><span>Commercial Cleaning</span><span>•</span><span>Facility Maintenance</span><span>•</span><span>Industry-Specific Discovery</span></div>
+    <div class="statusbar" style="margin-top:14px"><span class="badge online" id="netStatus">Online</span><span class="badge local">Local Save Enabled</span></div>
+  </div>
+
+  <div class="panel active" id="launcherPanel" style="display:block;margin-bottom:14px">
+    <h2>Login</h2>
+    <p class="sub">Enter your username and password to begin.</p>
+    <div class="row">
+      <div>
+        <label>Username</label>
+        <input id="launchUserId" placeholder="Enter your username" />
+      </div>
+      <div>
+        <label>Password</label>
+        <input id="launchPassword" type="password" placeholder="Enter your password" />
+      </div>
+    </div>
+    <div class="btns">
+      <button class="primary" id="startSessionBtn" onclick="startSessionFlow()">Start Discovery Session</button>
+    </div>
+    <div id="recentSessionsPreview" class="hidden"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="prep">Pre-Call</button>
+    <button class="tab-btn" data-tab="qa">Discovery</button>
+    <button class="tab-btn" data-tab="walk">Walk / Pricing</button>
+    <button class="tab-btn" data-tab="summary">Summary</button>
+  </div>
+
+  <section id="prep" class="panel">
+    <div class="pill-note">Step 1 of 4 — Pre-Call</div>
+    <h2>Pre-Call</h2>
+    <p class="sub">Capture what you already know before the discovery conversation begins.</p>
+    <label>Company / Property</label><input id="company" placeholder="Example: Harbor View Bistro" />
+    <div class="row">
+      <div><label>Main Contact</label><input id="contact" placeholder="Example: Hannah Carter" /></div>
+      <div><label>Role</label><input id="role" placeholder="Property Manager" /></div>
+    </div>
+    <div class="triple">
+      <div><label>Industry Group</label><select id="industryGroup"></select></div>
+      <div><label>Business Type</label><select id="businessType"></select></div>
+      <div><label>Sites / Buildings</label><input id="sites" placeholder="1" /></div>
+    </div>
+    <div id="otherBusinessWrap" class="hidden">
+      <label>What type of business is it?</label>
+      <input id="otherBusinessText" placeholder="Example: Nail salon, vape shop, hybrid service retail..." />
+    </div>
+    <label>Customer Website</label><input id="website" placeholder="example.com" />
+    <label>Phone</label><input id="phone" placeholder="Contact phone" />
+    <label>Email</label><input id="email" placeholder="Contact email" />
+    <label>Suggested Meeting Approach</label><textarea id="approach"></textarea>
+    <label>Known Context / Notes</label><textarea id="context"></textarea>
+    <div class="btns"><button class="primary" id="completePreCallBtn" onclick="openPreCallReview()">Complete Pre-Call</button><button class="secondary" id="toQaBtn" onclick="goToDiscoveryFromPrecall()">Start Discovery Conversation</button></div>
+    <div class="btns"><button class="secondary help-btn" data-help="prep">Help</button><button class="ghost" id="prepSaveCloseBtn">Save & Exit Session</button></div>
+  </section>
+
+  <section id="qa" class="panel">
+    <div class="pill-note">Step 2 of 4 — Discovery</div>
+    <div class="qa-progress" id="progressBar"></div>
+    <div class="question-card">
+      <div class="question-label" id="qLabel">Discovery Topic</div>
+      <div class="question-text" id="qText">Question text appears here.</div>
+
+      <label>What they said</label>
+      <textarea id="qaAnswer"></textarea>
+
+      <div class="section-title">Tap anything they mention</div>
+      <div class="small-inline">Type or select what they mention.</div>
+      <div class="chips" id="quickAnswers"></div>
+
+      <div class="optional-note">
+        <label>Your notes (optional)</label>
+        <textarea id="qaExtraNote"></textarea>
+      </div>
+
+      <div class="helper" id="qHelper">Support text appears here.</div>
+    </div>
+
+    <div class="btns"><button class="secondary" id="prevQuestionBtn">← Previous</button><button class="secondary" id="viewProgressBtn">View Progress</button></div>
+    <div class="section-title">Next Step</div><button class="nextbtn" id="smartNextBtn">Next Topic →</button>
+    <div class="section-title">Current Discovery Snapshot</div><div class="mini-card" id="tinyStatus">No major signals captured yet.</div>
+    <div class="btns"><button class="secondary help-btn" data-help="qa">Help</button><button class="ghost" id="qaSaveCloseBtn">Save & Exit Session</button></div>
+  </section>
+
+  <section id="walk" class="panel">
+    <div class="pill-note">Step 3 of 4 — Walk & Pricing</div>
+    <h2>Walk & Pricing Signals</h2>
+    <p class="sub">Capture budget signals, scope notes, and proposal readiness.</p>
+
+    <div class="section-title">Now that we’ve aligned on what matters most...</div>
+    <div class="row">
+      <div><label>Expected monthly range (if known)</label><input id="budgetMonthly" placeholder="Example: 3500" /></div>
+      <div><label>Budget Confidence</label><select id="budgetConfidence"><option value="">Select one</option><option>Confirmed</option><option>Estimated</option><option>Sensitive / hesitant</option><option>Unknown / would not share</option></select></div>
+    </div>
+    <div class="row">
+      <div><label>Current Provider</label><input id="currentVendor" /></div>
+      <div><label>Time With Current Vendor</label><select id="vendorTenure"><option value=""></option><option>Less Than 1 Year</option><option>1 Year</option><option>1–5 Years</option><option>Over 5 Years</option></select></div>
+    </div>
+    <label>Walk-Through Notes</label><textarea id="walkNotes"></textarea>
+    <label>Measurements / Scope Notes</label><textarea id="measurementNotes"></textarea>
+
+    <div class="row">
+      <div><div class="section-title">Budget / Fit Signals</div><div class="chips" id="budgetSignals"><div class="chip">Budget fits likely</div><div class="chip">Needs scope adjustment</div><div class="chip">Comparing to current spend</div><div class="chip">Need decision input</div><div class="chip">Sensitive on price</div></div></div>
+      <div><div class="section-title">Proposal Readiness</div><div class="chips" id="proposalSignals"><div class="chip">Pain is clear</div><div class="chip">Good opportunity</div><div class="chip">Need stakeholder meeting</div><div class="chip">Need more scope detail</div><div class="chip">Decision process known</div></div></div>
+    </div>
+
+    <label>Pricing Call / Delivery Plan</label><textarea id="pricingCallPlan"></textarea>
+    <div class="btns"><button class="secondary" id="suggestBudgetBtn">Suggest Budget Transition</button><button class="primary" id="buildSummaryBtn">Generate Summary</button></div>
+    <div class="section-title">Suggested Budget Transition</div><div class="summary-box" id="budgetTransition">Budget guidance appears here once enough trust and value have been established.</div>
+    <div class="btns"><button class="secondary help-btn" data-help="walk">Help</button><button class="ghost" id="walkSaveCloseBtn">Save & Exit Session</button></div>
+  </section>
+
+  <section id="summary" class="panel">
+    <div class="pill-note">Step 4 of 4 — Summary</div>
+    <h2>Discovery Summary</h2>
+    <p class="sub">Review the summary, refine anything needed, and prepare for follow-up.</p>
+    <div class="section-title">Summary Output</div><div class="summary-box" id="summaryOutput">No summary yet. Complete the first three tabs, then tap “Generate Summary.”</div>
+    <div class="section-title hidden" id="aiFallbackTitle">AI-Ready Text</div><textarea id="aiFallbackBox" class="hidden" style="min-height:240px"></textarea>
+    <div class="section-title">Outcome Tracking</div>
+    <div class="small-inline">Select the current status of this opportunity.</div>
+    <div class="chips" id="outcomeSignals">
+      <div class="chip">Proposal Sent</div>
+      <div class="chip">Follow-Up Needed</div>
+      <div class="chip">Closed Won</div>
+      <div class="chip">Closed Lost</div>
+    </div>
+    <label>Outcome Notes (optional)</label>
+    <textarea id="outcomeNotes" placeholder="Capture anything important about the current sales outcome or next step."></textarea>
+    <div class="btns">
+      <button class="secondary" id="returnToDiscoveryBtn">Refine Discovery</button>
+      <button class="primary" id="exportToAIBtn">Copy Summary for AI</button>
+      <button class="ghost" id="closeSessionBtn">Finish Session</button>
+    </div>
+    <div class="btns"><button class="secondary help-btn" data-help="summary">Help</button><button class="ghost" id="summarySaveCloseBtn">Save & Exit Session</button></div>
+  </section>
+
+  <div class="footer">DiscoveryGuide V1.03 • outcome tracking added</div>
+</div>
+
+<div class="overlay" id="popupOverlay">
+  <div class="popup">
+    <h3 id="popupTitle">Quick Coaching Reminder</h3>
+    <div style="font-size:.83rem;color:#64748b;margin-bottom:8px">Use this naturally in conversation.</div>
+    <div id="popupBody"></div>
+    <div class="btns"><button class="secondary" id="popupDismissBtn">Dismiss</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="valueOverlay">
+  <div class="popup value-popup">
+    <div class="value-header">
+      <h3>Confirm Value Before Budget</h3>
+      <div style="font-size:.82rem;opacity:.94">Pause before discussing budget. Reinforce value based on what they shared.</div>
+    </div>
+    <div class="value-grid">
+      <div class="value-card"><strong>Value Proposition</strong><div>City Wide reduces management burden by improving consistency, communication, and accountability around facility services.</div></div>
+      <div class="value-card"><strong>3 Uniques</strong><div>• One point of contact<br>• Proactive management and follow-up<br>• Ability to simplify multiple service needs under one relationship</div></div>
+      <div class="value-card"><strong>Why City Wide</strong><div>Reinforce fit based on what the prospect actually shared without turning discovery into a sales presentation.</div></div>
+    </div>
+    <div class="btns"><button class="primary" id="valueConfirmBtn">Value Confirmed — Continue to Budget</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="progressOverlay">
+  <div class="popup"><h3>Captured Discovery Progress</h3><div id="progressBody"></div><div class="btns"><button class="secondary" id="progressDismissBtn">Close</button></div></div>
+</div>
+
+
+<div class="overlay" id="precallOverlay">
+  <div class="popup">
+    <h3>Pre-Call Review</h3>
+    <div id="precallBody"></div>
+    <div class="popup-actions-sticky">
+      <div class="btns">
+        <button class="secondary" id="precallSaveBtn" onclick="savePrecallForLater()">Save & Continue Later</button>
+        <button class="primary" id="precallBeginBtn" onclick="beginDiscoveryFromReport()">Start Discovery Conversation</button>
+        <button class="secondary" id="precallCloseBtn" onclick="closePrecallReport()">Close Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="importOverlay">
+  <div class="popup">
+    <h3>Import Discovery</h3>
+    <div id="importBody" class="summary-box" style="white-space:normal"></div>
+    <div class="btns"><button class="secondary" id="importCloseBtn">Close</button></div>
+  </div>
+</div>
+
+
+
+<div class="overlay" id="userInactiveOverlay">
+  <div class="popup">
+    <h3>User Inactive</h3>
+    <div class="summary-box" style="white-space:normal">This user is currently inactive. Contact your manager or administrator for access.</div>
+    <div class="btns"><button class="secondary" id="userInactiveCloseBtn" onclick="resetLaunchpadLogin()">Close</button></div>
+  </div>
+</div>
+
+
+<div class="overlay" id="passwordIncorrectOverlay">
+  <div class="popup">
+    <h3>Password Incorrect</h3>
+    <div class="summary-box" style="white-space:normal">The password entered does not match this user. Please try again.</div>
+    <div class="btns"><button class="secondary" id="passwordIncorrectCloseBtn" onclick="resetLaunchpadLogin()">Close</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="userNotFoundOverlay">
+  <div class="popup">
+    <h3>Invalid Username or Password</h3>
+    <div class="summary-box" style="white-space:normal">User Not Found</div>
+    <div class="btns"><button class="secondary" id="userNotFoundCloseBtn" onclick="resetLaunchpadLogin()">Close</button></div>
+  </div>
+</div>
+
+
+
+
+<div class="overlay" id="repStageOverlay">
+  <div class="popup">
+    <h3>Rep Discovery</h3>
+    <div class="admin-helper">Choose how you want to begin.</div>
+    <div class="btns">
+      <button class="primary" id="repBeginSurveyBtn" onclick="beginRepNewSurvey()">Start New Discovery</button>
+      <button class="secondary" id="repImportSurveyBtn" onclick="openRepImportSurvey()">Resume Previous Discovery</button>
+      <button class="secondary" id="repReturnLaunchpadBtn" onclick="closeRepStage()">Return to Login</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="managerStageOverlay">
+  <div class="popup">
+    <h3>Manager Navigation</h3>
+    <div class="admin-helper">Choose where you want to go.</div>
+    <div class="btns">
+      <button class="primary" id="managerLaunchpadBtn" onclick="openManagerLaunchpad()">Start Discovery</button>
+      <button class="secondary" id="managerAdminBtn" onclick="openAdminPasswordDialog()">Admin Dashboard</button>
+      <button class="secondary" id="managerReturnLoginBtn" onclick="closeManagerStage()">Return to Login</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOverlay">
+  <div class="popup admin-popup">
+    <div id="adminHomePage" class="admin-page active">
+      <h3>Administrative Dashboard</h3>
+      <div class="btns">
+        <button class="primary" id="adminHomeAddRepBtn" onclick="showAdminPage('rep')">Add Rep</button>
+        <button class="secondary" id="adminHomeAddManagerBtn" onclick="showAdminPage('manager')">Add Manager</button>
+        <button class="secondary" id="adminHomeReportsBtn" onclick="showAdminPage('reports')">View Manager Reports</button>
+        <button class="secondary" id="adminHomeSecurityBtn" onclick="showAdminPage('security')">System Controls</button>
+        <button class="secondary" id="adminHomeLaunchpadBtn" onclick="returnToLaunchpadKeepLogin()">Return to Launchpad</button>
+      </div>
+      <div class="admin-helper">Choose an administrative function to continue.</div>
+    </div>
+
+    <div id="adminAddRepPage" class="admin-page">
+      <h3>Add Rep</h3>
+      <div class="admin-helper">Create a rep account and assign who they report to.</div>
+      <input id="adminCreateRole" type="hidden" value="Rep" />
+      <div class="row">
+        <div>
+          <label>Username</label>
+          <input id="adminCreateUserName" placeholder="Username" />
+        </div>
+        <div>
+          <label>Create Password</label>
+          <input id="adminCreateUserPassword" type="password" placeholder="Create password" />
+        </div>
+      </div>
+      <label>Reports To</label>
+      <div class="admin-helper">Select the manager this rep reports to.</div>
+      <select id="adminAssignedManager">
+        <option value="">Select manager</option>
+      </select>
+      <div class="btns">
+        <button class="primary" id="saveRepBtn" onclick="saveCreatedUser()">Save User</button>
+      </div>
+
+      <div class="section-title">Authorized Users</div>
+      <div class="admin-scroll-box"><div id="adminUserList"></div></div>
+
+      <div class="btns">
+        <button class="secondary" id="adminRepDashboardBtn" onclick="showAdminPage('home')">Return to Dashboard</button>
+        <button class="secondary" id="adminRepAddAnotherBtn" onclick="resetAdminCreateForm(); showAdminPage('rep')">Add Additional User</button>
+        <button class="secondary" id="adminRepLaunchpadBtn" onclick="returnToLaunchpadKeepLogin()">Return to Launchpad</button>
+      </div>
+    </div>
+
+    <div id="adminAddManagerPage" class="admin-page">
+      <h3>Add Manager</h3>
+      <div class="admin-helper">Create a manager account. Leave Reports To blank only for the highest-level manager.</div>
+      <input id="adminCreateRoleManager" type="hidden" value="Manager" />
+      <div class="row">
+        <div>
+          <label>Username</label>
+          <input id="adminCreateManagerName" placeholder="Username" />
+        </div>
+        <div>
+          <label>Create Password</label>
+          <input id="adminCreateManagerPassword" type="password" placeholder="Create password" />
+        </div>
+      </div>
+      <label>Reports To</label>
+      <div class="admin-helper">Choose another manager only when this manager reports upward.</div>
+      <select id="adminManagerReportsTo">
+        <option value="">None / Top-Level</option>
+      </select>
+      <div class="btns">
+        <button class="primary" id="saveManagerBtn" onclick="saveCreatedManager()">Save User</button>
+      </div>
+
+      <div class="section-title">Authorized Users</div>
+      <div class="admin-scroll-box"><div id="adminUserList"></div></div>
+
+      <div class="btns">
+        <button class="secondary" id="adminManagerDashboardBtn" onclick="showAdminPage('home')">Return to Dashboard</button>
+        <button class="secondary" id="adminManagerAddAnotherBtn" onclick="resetAdminCreateForm(); showAdminPage('manager')">Add Additional User</button>
+        <button class="secondary" id="adminManagerLaunchpadBtn" onclick="returnToLaunchpadKeepLogin()">Return to Launchpad</button>
+      </div>
+    </div>
+
+    <div id="adminReportsPage" class="admin-page">
+      <h3>View Manager Reports</h3>
+      <div class="admin-helper">View all users, hierarchy details, authority levels, status, and user access controls, including Administrators.</div>
+      <div class="admin-scroll-box"><div id="adminReportsList"></div></div>
+      <div class="btns">
+        <button class="secondary" id="adminReportsDashboardBtn" onclick="showAdminPage('home')">Return to Dashboard</button>
+        <button class="secondary" id="adminReportsAddUserBtn" onclick="showAdminPage('rep')">Add Additional User</button>
+        <button class="secondary" id="adminReportsLaunchpadBtn" onclick="returnToLaunchpadKeepLogin()">Return to Launchpad</button>
+      </div>
+    </div>
+
+    <div id="adminSecurityPage" class="admin-page">
+      <h3>System Controls</h3>
+      <div class="section-title">Admin Password</div>
+      <label>New Admin Password</label>
+      <input id="newAdminPassword" type="password" placeholder="Enter new admin password" />
+      <div class="btns"><button class="ghost" id="changeAdminPasswordBtn" onclick="openChangePasswordConfirm()">Change Password</button></div>
+
+      <div class="section-title">System Recovery</div>
+      <div class="btns"><button class="ghost" id="masterResetBtn" onclick="openMasterResetWarning()">Master System Reset</button></div>
+
+      <div class="btns">
+        <button class="secondary" id="adminSecurityDashboardBtn" onclick="showAdminPage('home')">Return to Dashboard</button>
+        <button class="secondary" id="adminSecurityAddUserBtn" onclick="showAdminPage('rep')">Add Additional User</button>
+        <button class="secondary" id="adminSecurityLaunchpadBtn" onclick="returnToLaunchpadKeepLogin()">Return to Launchpad</button>
+      </div>
+    </div>
+
+      </div>
+</div>
+
+<div class="overlay" id="userAddedOverlay">
+  <div class="popup">
+    <h3>User Successfully Added</h3>
+    <div id="userAddedMessage" class="summary-box" style="white-space:normal">The user was added successfully.</div>
+    <div class="btns">
+      <button class="secondary" id="userAddedAddAnotherBtn" onclick="closeUserAddedAddAnother()">Add User</button>
+      <button class="secondary" id="userAddedDashboardBtn" onclick="closeUserAddedToDashboard()">Return to Admin</button>
+      <button class="primary" id="userAddedLaunchpadBtn" onclick="closeUserAddedToLaunchpad()">Return to Launchpad</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="editConfirmedOverlay">
+  <div class="popup">
+    <h3>Edit Confirmed</h3>
+    <div id="editConfirmedMessage" class="summary-box" style="white-space:normal">User edits were saved successfully.</div>
+    <div class="btns">
+      <button class="secondary" id="editConfirmedDashboardBtn" onclick="closeEditConfirmedToDashboard()">Return to Dashboard</button>
+      <button class="secondary" id="editConfirmedAddUserBtn" onclick="closeEditConfirmedToAddUser()">Add Additional User</button>
+      <button class="primary" id="editConfirmedLaunchpadBtn" onclick="closeEditConfirmedToLaunchpad()">Return to Launchpad</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="changePasswordConfirmOverlay">
+  <div class="popup">
+    <h3>Change Admin Password?</h3>
+    <div class="summary-box" style="white-space:normal">This will replace the current administrative password. Anyone using the old password will no longer be able to access Administrative Functions.</div>
+    <div class="btns">
+      <button class="secondary" id="changePasswordCancelBtn">Cancel</button>
+      <button class="primary" id="changePasswordConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="masterResetWarningOverlay">
+  <div class="popup">
+    <h3>Warning: Master System Reset</h3>
+    <div class="summary-box" style="white-space:normal">This action may remove saved user records, sessions, and pilot changes. Data loss could occur. Continue only if you want to reset the system to its baseline startup state.</div>
+    <div class="btns">
+      <button class="secondary" id="masterResetCancelBtn">Cancel</button>
+      <button class="primary" id="masterResetConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="masterResetFinalOverlay">
+  <div class="popup">
+    <h3>Final Confirmation</h3>
+    <div class="summary-box" style="white-space:normal">You are about to perform a full local system reset. This is the last confirmation step.</div>
+    <div class="btns">
+      <button class="secondary" id="masterResetFinalCancelBtn">Cancel</button>
+      <button class="primary" id="masterResetExecuteBtn">Reset System</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="editUserOverlay">
+  <div class="popup">
+    <h3>Edit User</h3>
+    <input id="editUserOriginalId" type="hidden" value="" />
+    <label>Username</label>
+    <input id="editUserName" placeholder="Username" />
+    <label>Change Password</label>
+    <input id="editUserPassword" type="password" placeholder="Enter new password" />
+    <label>Reports To</label>
+    <select id="editUserManager">
+      <option value="">None / Top-Level</option>
+    </select>
+    <div class="btns">
+      <button class="primary" id="saveUserEditsBtn" onclick="saveUserEdits()">Save Edits</button>
+      <button class="secondary" id="closeEditUserBtn" onclick="closeEditUserOverlay()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="helpOverlay">
+  <div class="popup"><h3 id="helpTitle">Help</h3><div id="helpBody"></div><div class="btns"><button class="secondary" id="helpDismissBtn">Close</button></div></div>
+</div>
+
+<script>
+const STORAGE_KEY = "city_wide_pilot_v58_active";
+const USERS_KEY = "city_wide_pilot_v58_users";
+const ACTIVE_USER_KEY = "city_wide_pilot_v58_identity";
+const ADMIN_PASSWORD_KEY = "city_wide_pilot_v58_admin_password";
+const hiddenAIPrompt = `You are reviewing a janitorial and facility services discovery summary for City Wide Facility Solutions.
+
+Your role is to analyze this information and prepare a clear, practical internal sales strategy for the upcoming proposal delivery meeting.
+
+IMPORTANT GUIDELINES:
+- This is NOT a sales pitch and NOT a proposal.
+- The discovery meeting is already complete.
+- Your job is to help the sales rep win the business during the proposal delivery stage.
+- Use only the information provided. Do NOT invent details.
+- If information is missing, clearly identify it as a gap.
+- Keep recommendations realistic, practical, and aligned with a consultative, trust-based sales approach.
+- Distinguish between confirmed facts, likely implications, and unknowns.
+
+Provide your response in the following sections:
+1. Opportunity Overview
+2. Key Pain Points (Prioritized)
+3. Impact & Management Burden
+4. Buying Signals
+5. Risks & Obstacles
+6. Positioning Strategy for Proposal Delivery
+7. Most Relevant City Wide Strengths
+8. Gaps to Clarify
+9. Recommended Next Steps
+10. Proposal Delivery Game Plan
+11. Sales Approach Recommendation
+
+Here is the discovery summary to analyze:
+`;
+
+const INDUSTRIES = JSON.parse(String.raw`{"Retail / Customer Facing": [{"type": "Fast Casual Restaurant", "pricingDrivers": ["grease", "floors", "restrooms", "traffic", "trash", "daily reset"], "taps": ["Floors always dirty", "Grease buildup", "Restrooms", "Trash overflow", "Dining area appearance", "Customer complaints"], "followups": ["When do floors look the worst?", "Who handles resets during peak hours?", "How often are restrooms checked during the day?"], "summaryHook": "Restaurant environment where traffic, grease, restrooms, and reset expectations directly affect guest perception."}, {"type": "Full Service Restaurant", "pricingDrivers": ["dining floors", "restrooms", "bar area", "entry", "after-hours reset"], "taps": ["Sticky floors", "Restrooms", "Bar area", "End-of-night inconsistency", "Guest complaints"], "followups": ["Do issues show up more during service or after close?", "How consistent is end-of-night cleaning?", "Who checks quality before opening?"], "summaryHook": "Guest-experience-driven environment where consistency and detail directly affect perception and reviews."}, {"type": "Coffee Shop / Cafe", "pricingDrivers": ["floors", "condiment areas", "trash", "restrooms", "glass", "traffic"], "taps": ["Floors", "Condiment area", "Trash", "Restrooms", "Glass", "Customer-facing image"], "followups": ["How often do traffic spikes overwhelm staff cleanup?", "Are restrooms or front-of-house floors the bigger issue?", "Do you need multiple quick resets during the day?"], "summaryHook": "High-traffic customer-facing environment where small visible misses are noticed quickly."}, {"type": "Bar / Tavern", "pricingDrivers": ["sticky floors", "restrooms", "spills", "trash"], "taps": ["Sticky floors", "Spills", "Restrooms", "Trash overflow", "Late-night cleanup"], "followups": ["How rough are floors after peak hours?", "Is cleaning happening during or after business?", "Who handles the worst of it?"], "summaryHook": "Late-night environment where heavy use requires strong reset consistency."}, {"type": "Boutique / Clothing Store", "pricingDrivers": ["floors", "mirrors", "fitting rooms", "dust"], "taps": ["Dust on displays", "Mirrors streaked", "Floors", "Fitting rooms", "Presentation issues"], "followups": ["What areas affect customer experience most?", "How often are fitting rooms checked?", "Do issues show up during busy days?"], "summaryHook": "Presentation-driven environment where visual detail impacts sales."}, {"type": "Big Box Retail", "pricingDrivers": ["large floor space", "restrooms", "trash", "entryways"], "taps": ["Floors inconsistent", "Restrooms", "Trash", "Entry areas", "Large space challenges"], "followups": ["Where does quality drop off?", "How is cleaning structured across the space?", "What gets missed most?"], "summaryHook": "Large-scale environment where consistency across space is the biggest challenge."}, {"type": "Grocery Store", "pricingDrivers": ["floors", "restrooms", "trash", "entry"], "taps": ["Floors (spills)", "Restrooms", "Trash", "Entry messy", "Customer complaints"], "followups": ["How quickly are spills handled?", "What areas draw the most complaints?", "Who owns floor care during hours?"], "summaryHook": "High-volume environment where safety and cleanliness go hand in hand."}, {"type": "Convenience Store", "pricingDrivers": ["constant traffic", "restrooms", "trash", "entry"], "taps": ["Restrooms", "Trash", "Floors", "Entry", "Constant use"], "followups": ["What areas stay consistently dirty?", "How often is cleaning happening?", "What frustrates you most?"], "summaryHook": "Small footprint with high usage requiring frequent resets."}, {"type": "Pharmacy", "pricingDrivers": ["floors", "counters", "waiting areas", "restrooms"], "taps": ["Floors", "Counters", "Waiting area", "Restrooms", "Cleanliness perception"], "followups": ["What affects patient/customer perception most?", "Are there complaints tied to cleanliness?", "Where does quality slip?"], "summaryHook": "Health-focused environment where cleanliness influences trust."}, {"type": "Electronics Store", "pricingDrivers": ["dust", "floors", "displays", "glass"], "taps": ["Dust", "Displays", "Floors", "Glass", "Fingerprints"], "followups": ["How noticeable is dust to customers?", "What areas require constant upkeep?", "When do displays start to look worn?"], "summaryHook": "Detail-driven environment where dust and presentation impact perception."}, {"type": "Furniture Store", "pricingDrivers": ["floors", "dust", "large displays"], "taps": ["Dust", "Floors", "Displays", "Presentation"], "followups": ["What affects customer perception most?", "How often are displays cleaned?", "Where do issues show up?"], "summaryHook": "Large display environment where dust and presentation drive perception."}, {"type": "Car Dealership", "pricingDrivers": ["showroom glass", "showroom floors", "service bay contamination", "waiting areas", "restrooms"], "taps": ["Showroom floors", "Glass always dirty", "Service bay dirt", "Waiting area complaints", "Restrooms", "Customer impression"], "followups": ["How much of the space is showroom vs service vs office?", "How much does service bay traffic affect customer-facing areas?", "How important is showroom presentation daily?"], "summaryHook": "Customer-facing dealership where showroom presentation and service-bay carryover both influence perception."}, {"type": "Auto Service Center", "pricingDrivers": ["oil/dirt", "waiting area", "restrooms"], "taps": ["Floors (oil/dirt)", "Waiting area", "Restrooms", "Carryover from shop"], "followups": ["How much dirt transfers into customer areas?", "What do customers complain about?", "Where does cleaning break down?"], "summaryHook": "Operational environment where shop activity affects customer-facing cleanliness."}, {"type": "Quick Service / Fast Food", "pricingDrivers": ["constant traffic", "floors", "restrooms", "trash", "condiment areas"], "taps": ["Floors constantly dirty", "Restrooms", "Trash", "Condiment area messy", "High traffic wear"], "followups": ["How often are lobby areas reset during the day?", "What gets missed most during busy periods?", "Who owns cleanliness during peak hours?"], "summaryHook": "Continuous-use environment where high traffic creates constant reset demands."}, {"type": "Bakery", "pricingDrivers": ["floors", "display cleanliness", "glass", "crumbs", "light grease"], "taps": ["Floors dusty", "Display cases", "Glass", "Trash", "Customer-facing surfaces"], "followups": ["What areas impact customer perception most?", "How often are displays cleaned?", "When do issues show up most?"], "summaryHook": "Cleanliness directly tied to product perception and customer trust."}, {"type": "Specialty Retail", "pricingDrivers": ["floors", "displays", "odor", "trash", "customer-facing areas"], "taps": ["Floors", "Displays", "Odor", "Trash", "Customer complaints"], "followups": ["What do customers notice first?", "Are there any odor or specialty cleanup concerns?", "What is hardest to keep consistently clean?"], "summaryHook": "Unique retail environment where operational specifics shape cleaning expectations."}, {"type": "Tire Shop", "pricingDrivers": ["heavy debris", "floors", "waiting area", "restrooms"], "taps": ["Debris", "Floors", "Waiting area", "Restrooms"], "followups": ["How bad does debris get during the day?", "How often is cleanup needed in customer areas?", "What frustrates you most about the current condition?"], "summaryHook": "High-debris environment requiring consistent cleanup to maintain basic presentation."}, {"type": "Other (Not Listed)", "pricingDrivers": ["floors", "restrooms", "trash", "customer-facing areas", "traffic"], "taps": ["Floors", "Restrooms", "Trash", "Customer complaints", "Appearance issues", "High traffic wear"], "followups": ["What areas are most visible to customers?", "When does cleanliness start to break down?", "What takes the most time to manage?"], "summaryHook": "Customer-facing environment where cleanliness directly impacts perception and experience."}], "Medical / Clinical": [{"type": "Primary Care Clinic", "pricingDrivers": ["restrooms", "waiting room", "exam rooms", "high-touch surfaces"], "taps": ["Restrooms", "Waiting room cleanliness", "Exam rooms inconsistent", "High-touch surfaces", "Patient complaints"], "followups": ["What do patients notice first?", "Where do complaints come from most?", "How often are exam rooms reset?"], "summaryHook": "Patient-facing environment where visible cleanliness directly impacts trust and comfort."}, {"type": "Urgent Care", "pricingDrivers": ["patient turnover", "restrooms", "floors", "waiting areas"], "taps": ["Constant traffic", "Restrooms", "Floors", "Waiting area"], "followups": ["How fast do rooms turn over?", "When does cleanliness fall off?", "What creates the most pressure?"], "summaryHook": "High-turnover environment where speed and consistency are critical."}, {"type": "Specialty Medical Office", "pricingDrivers": ["waiting rooms", "procedure rooms", "floors", "patient perception"], "taps": ["Waiting area", "Procedure rooms", "Floors", "Cleanliness concerns"], "followups": ["What matters most to your patients?", "Where do issues show up?", "How is quality checked?"], "summaryHook": "Specialized environment where perception and consistency drive patient confidence."}, {"type": "Dental Office", "pricingDrivers": ["operatories", "floors", "reception", "restrooms"], "taps": ["Operatories", "Floors", "Reception", "Restrooms"], "followups": ["What areas are most visible?", "How often are operatories cleaned?", "What gets missed?"], "summaryHook": "Detail-driven environment where cleanliness is tied directly to patient trust."}, {"type": "Surgery Center", "pricingDrivers": ["strict sanitation", "floors", "waiting areas", "staff areas"], "taps": ["High standards", "Floors", "Waiting area", "Staff areas"], "followups": ["What standards must be met?", "Where is consistency most critical?", "What risks concern you most?"], "summaryHook": "High-compliance environment where precision and consistency are essential."}, {"type": "Physical Therapy Clinic", "pricingDrivers": ["floors", "equipment areas", "restrooms", "high-touch surfaces"], "taps": ["Floors", "Equipment cleanliness", "Restrooms", "High-touch surfaces"], "followups": ["How often is equipment cleaned?", "What do patients notice?", "Where does cleaning break down?"], "summaryHook": "Active-use environment where cleanliness affects both safety and experience."}, {"type": "Veterinary Clinic", "pricingDrivers": ["odors", "floors", "exam rooms", "lobby", "restrooms"], "taps": ["Odors", "Floors", "Exam rooms", "Lobby", "Restrooms"], "followups": ["What do clients notice first when cleanliness slips?", "Are odor control and floors the biggest challenge?", "What spaces require the most consistent reset?"], "summaryHook": "Client-facing care environment where visible cleanliness and odor control shape trust."}, {"type": "Other (Not Listed)", "pricingDrivers": ["restrooms", "waiting area", "patient-facing spaces", "high-touch surfaces"], "taps": ["Restrooms", "Waiting area", "Visible patient areas", "High-touch surfaces", "Complaints"], "followups": ["What areas are most visible to patients?", "What requires the highest consistency?", "What drives complaints or concern?"], "summaryHook": "Patient-facing environment where visible cleanliness and consistency shape confidence."}], "Office / Professional": [{"type": "Corporate Office", "pricingDrivers": ["restrooms", "breakrooms", "trash", "common areas"], "taps": ["Restrooms", "Breakrooms", "Trash", "Common areas", "Complaints"], "followups": ["What generates complaints most often?", "How often are common areas checked?", "What takes the most time to manage?"], "summaryHook": "Workplace environment where consistency and low management effort are key."}, {"type": "Multi-Tenant Office Building", "pricingDrivers": ["common areas", "restrooms", "lobbies", "multiple stakeholders"], "taps": ["Common areas", "Restrooms", "Lobby appearance", "Tenant complaints"], "followups": ["Who reports issues most often?", "How are vendors managed today?", "What causes the most friction?"], "summaryHook": "Multi-stakeholder environment where communication and consistency are critical."}, {"type": "Co-working Space", "pricingDrivers": ["shared areas", "kitchens", "restrooms", "constant turnover"], "taps": ["Shared spaces", "Kitchens", "Restrooms", "Constant use"], "followups": ["How often do shared spaces need reset?", "What do members complain about?", "When does quality drop?"], "summaryHook": "Shared-use environment where constant reset and visibility drive expectations."}, {"type": "Call Center", "pricingDrivers": ["high occupancy", "trash", "restrooms", "breakrooms"], "taps": ["Trash", "Restrooms", "Breakrooms", "High usage"], "followups": ["What areas wear down fastest?", "What requires the most attention?", "Where do issues show up?"], "summaryHook": "High-density environment where usage drives consistent cleaning demand."}, {"type": "Government Office", "pricingDrivers": ["restrooms", "floors", "public areas", "compliance"], "taps": ["Restrooms", "Floors", "Public areas", "Complaints"], "followups": ["What standards must be met?", "Who oversees quality?", "Where are issues reported?"], "summaryHook": "Public-facing environment where consistency and accountability are essential."}, {"type": "Law Office", "pricingDrivers": ["reception image", "restrooms", "conference rooms", "discretion", "client traffic"], "taps": ["Reception appearance", "Restrooms", "Conference rooms", "Client-facing image", "Need discretion"], "followups": ["How often are clients physically in the office?", "What spaces matter most to client perception?", "Are there privacy or after-hours access concerns?"], "summaryHook": "Professional office where presentation, discretion, and client-facing cleanliness matter."}, {"type": "CPA / Financial Office", "pricingDrivers": ["reception image", "restrooms", "dust/detail", "conference rooms", "client traffic"], "taps": ["Reception appearance", "Restrooms", "Dust / detail", "Conference rooms", "Client-facing image"], "followups": ["What spaces matter most during client visits?", "Is attention to detail more important than heavy-use cleaning?", "When do visible issues tend to stand out?"], "summaryHook": "Detail-oriented office where professionalism and presentation support trust."}, {"type": "Insurance Office", "pricingDrivers": ["reception image", "restrooms", "common areas", "client traffic"], "taps": ["Reception appearance", "Restrooms", "Common areas", "Client-facing image", "Complaints"], "followups": ["How often are customers in the office?", "What areas shape first impression most?", "What takes the most follow-up today?"], "summaryHook": "Professional office where clean presentation supports confidence and ease of management."}, {"type": "Other (Not Listed)", "pricingDrivers": ["restrooms", "breakrooms", "trash", "common areas"], "taps": ["Restrooms", "Breakrooms", "Trash", "Common areas", "Follow-up burden"], "followups": ["What areas matter most day to day?", "Where do complaints show up first?", "What takes the most follow-up?"], "summaryHook": "Professional environment where consistency and ease of management matter."}], "Industrial / Operations": [{"type": "Warehouse / Distribution", "pricingDrivers": ["dust", "debris", "breakrooms", "restrooms"], "taps": ["Dust buildup", "Floor debris", "Breakrooms", "Restrooms"], "followups": ["How often is debris removed?", "Where does buildup occur most?", "What affects safety the most?"], "summaryHook": "Operational environment where cleanliness impacts safety and efficiency."}, {"type": "Manufacturing Facility", "pricingDrivers": ["debris", "production residue", "floors", "break areas"], "taps": ["Debris", "Residue", "Floors", "Breakrooms"], "followups": ["What type of residue is present?", "What areas require constant attention?", "What affects safety most?"], "summaryHook": "Production environment where cleaning supports both safety and operations."}, {"type": "Logistics Hub", "pricingDrivers": ["high traffic", "debris", "restrooms", "offices"], "taps": ["Traffic wear", "Debris", "Restrooms", "Office areas"], "followups": ["Where does traffic impact cleanliness most?", "What areas are overlooked?", "What creates recurring issues?"], "summaryHook": "High-movement environment where traffic drives cleaning demand."}, {"type": "Flex Industrial Space", "pricingDrivers": ["mixed-use areas", "office + warehouse", "floors", "restrooms"], "taps": ["Mixed space", "Floors", "Restrooms", "Inconsistent cleaning"], "followups": ["How do needs differ by space?", "What gets missed between areas?", "What causes issues most often?"], "summaryHook": "Mixed-use environment requiring balanced cleaning between office and operational areas."}, {"type": "Other (Not Listed)", "pricingDrivers": ["dust", "debris", "restrooms", "support areas"], "taps": ["Dust", "Debris", "Restrooms", "Safety concerns", "Support areas"], "followups": ["Where does debris build up most?", "What affects safety or operations?", "What spaces matter most to leadership?"], "summaryHook": "Operational environment where cleanliness supports safety and consistency."}], "Education / Community": [{"type": "Private School", "pricingDrivers": ["classrooms", "restrooms", "floors", "high traffic"], "taps": ["Classrooms", "Restrooms", "Floors", "High traffic"], "followups": ["When does cleaning happen?", "What areas cause complaints?", "What impacts parent perception most?"], "summaryHook": "High-traffic environment where cleanliness impacts students, staff, and parents."}, {"type": "Daycare / Childcare", "pricingDrivers": ["floors", "surfaces", "restrooms", "health sensitivity"], "taps": ["Floors", "Surfaces", "Restrooms", "Health concerns"], "followups": ["What concerns parents most?", "How often are surfaces cleaned?", "What must be most consistent?"], "summaryHook": "Health-sensitive environment where cleanliness directly impacts trust."}, {"type": "Church / Worship Facility", "pricingDrivers": ["large spaces", "restrooms", "event usage"], "taps": ["Large spaces", "Restrooms", "Event cleanup"], "followups": ["How does usage vary week to week?", "What happens after events?", "What gets missed most?"], "summaryHook": "Event-driven environment where consistency varies with usage patterns."}, {"type": "Gym / Fitness Center", "pricingDrivers": ["equipment", "floors", "restrooms", "high-touch surfaces"], "taps": ["Equipment cleanliness", "Floors", "Restrooms", "High-touch areas"], "followups": ["How often is equipment cleaned?", "What do members complain about?", "When does cleanliness drop?"], "summaryHook": "High-touch environment where cleanliness directly impacts member satisfaction."}, {"type": "Charter School / Academy", "pricingDrivers": ["classrooms", "restrooms", "hallways", "traffic"], "taps": ["Classrooms", "Restrooms", "Hallways", "Traffic", "Complaints"], "followups": ["Where do complaints show up first?", "How much do events change service expectations?", "What areas matter most to parent perception?"], "summaryHook": "Education environment where restrooms, common spaces, and consistency affect family confidence."}, {"type": "Community Center", "pricingDrivers": ["restrooms", "multi-use rooms", "traffic", "event resets"], "taps": ["Restrooms", "Multi-use rooms", "Traffic", "Event cleanup", "Complaints"], "followups": ["How much does usage vary by day or event?", "What spaces are hardest to reset quickly?", "Where do complaints come from most often?"], "summaryHook": "Shared-use environment where variable traffic and events drive cleanup expectations."}, {"type": "Tutoring Center", "pricingDrivers": ["reception", "classrooms", "restrooms", "parent visibility"], "taps": ["Reception", "Classrooms", "Restrooms", "Parent-facing image", "Complaints"], "followups": ["What areas are most visible to parents?", "When do spaces start to look worn or untidy?", "What matters most to the customer experience?"], "summaryHook": "Learning environment where parent-facing cleanliness and consistency support trust."}, {"type": "Other (Not Listed)", "pricingDrivers": ["restrooms", "floors", "common areas", "high traffic"], "taps": ["Restrooms", "Floors", "Common areas", "Traffic", "Complaints"], "followups": ["What do users notice first?", "Where does traffic affect cleanliness most?", "What takes the most effort to manage?"], "summaryHook": "Community environment where visible cleanliness and consistency affect user trust."}], "Hospitality / Residential": [{"type": "Hotel / Motel", "pricingDrivers": ["common areas", "restrooms", "floors", "guest perception"], "taps": ["Lobby cleanliness", "Floors", "Restrooms", "Guest complaints"], "followups": ["What affects guest experience most?", "Where do complaints come from?", "What gets missed most often?"], "summaryHook": "Guest-focused environment where first impressions drive satisfaction."}, {"type": "Apartment Complex", "pricingDrivers": ["common areas", "hallways", "trash", "entryways"], "taps": ["Hallways", "Trash areas", "Entry", "Complaints"], "followups": ["What do residents complain about?", "Where does cleanliness drop?", "What takes the most time?"], "summaryHook": "Resident-focused environment where consistency impacts retention and satisfaction."}, {"type": "Senior Living Facility", "pricingDrivers": ["high-touch areas", "restrooms", "floors", "health sensitivity"], "taps": ["High-touch areas", "Restrooms", "Floors", "Health concerns"], "followups": ["What concerns staff most?", "Where must consistency be highest?", "What risks exist if cleaning slips?"], "summaryHook": "Care-focused environment where cleanliness impacts safety and well-being."}, {"type": "Student Housing", "pricingDrivers": ["high traffic", "trash", "floors", "common areas"], "taps": ["Trash", "Floors", "Common areas", "Heavy use"], "followups": ["What areas get abused most?", "How often is cleanup needed?", "What frustrates management most?"], "summaryHook": "High-use environment where heavy traffic drives frequent cleaning needs."}, {"type": "Extended-Stay Hotel", "pricingDrivers": ["common areas", "restrooms", "breakfast area", "laundry/shared spaces", "guest perception"], "taps": ["Lobby", "Restrooms", "Breakfast area", "Shared spaces", "Guest complaints"], "followups": ["Do long-stay guests create different cleanup expectations?", "What common areas need the most frequent reset?", "Where do complaints show up most?"], "summaryHook": "Long-stay guest environment where public-area consistency and reset frequency shape satisfaction."}, {"type": "Mixed-Use Residential Common Areas", "pricingDrivers": ["lobbies", "hallways", "trash", "mail/package areas", "amenities"], "taps": ["Lobby", "Hallways", "Trash", "Package area", "Amenity spaces"], "followups": ["Which common areas get the most resident traffic?", "What spaces drive the most complaints?", "Where does cleanliness drop between visits?"], "summaryHook": "Resident-facing common-area environment where consistency affects perception and retention."}, {"type": "Other (Not Listed)", "pricingDrivers": ["common areas", "restrooms", "floors", "occupant-facing spaces"], "taps": ["Common areas", "Restrooms", "Floors", "Occupant complaints"], "followups": ["What affects occupant perception most?", "Where do issues show up first?", "What requires the most follow-up?"], "summaryHook": "Occupant-facing environment where consistency and appearance affect satisfaction."}]}`);
+
+const templates = {
+  satisfaction:{label:"Question 1",text:"How would you rate your current service on a scale of 1–5?",helper:"Start with conversation. Use taps to capture key points.",quick:["1 - Very dissatisfied","2","3","4","5 - Very satisfied"],multi:false},
+  makeFive:{label:"Question 2",text:"What would need to change to make it a 5?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["More consistency","Better communication","Faster response","Less time managing vendors","Better attention to detail","Fewer complaints","More accountability"],multi:true},
+  whatWorks:{label:"Question 2",text:"What do they do really well today?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["Consistency","Communication","Responsiveness","Low involvement","Cost","Reliability"],multi:true},
+  improve:{label:"Question 3",text:"If you could improve anything at all, what would it be — even something small?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["More consistency","Faster response","Better communication","Less involvement","Better attention to detail"],multi:true},
+  painExpand:{label:"Question 3",text:"Tell me more about that — where do you see it showing up the most, and how often does it happen?",helper:"Use open-ended conversation first, then tap what they mention.",quick:[],multi:true},
+  bizFollowup:{label:"Business-Specific Follow-Up",text:"One more question to sharpen pricing and scope for this type of business:",helper:"Ask only what matters. If they already answered it naturally, capture a short note and move on.",quick:[],multi:false},
+  impact:{label:"Question 4",text:"How does that affect you or your team day to day — and what happens when it’s not handled?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["Takes too much time","Constant follow-up","Frustration","Complaints","Affects reputation","Distracts from other priorities","Creates escalation"],multi:true},
+  setup:{label:"Question 5",text:"What does your current setup look like today — how is everything structured?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["Single vendor","Multiple vendors","In-house + vendors","Varies by site","Not fully sure"],multi:false},
+  decision:{label:"Question 6",text:"If you were to make a change, what would that process look like on your end — and who else would be involved?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["I make the decision","Team involved","Corporate approval","Ownership involved","Need multiple proposals","Would need pricing first"],multi:true},
+  whyNow:{label:"Question 7",text:"What’s driving you to look at this now instead of just leaving things as they are?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["Current service issues","Complaints","Need more consistency","Budget review timing","Contract timing","Looking proactively"],multi:true},
+  budget:{label:"Question 8",text:"Have you had a chance to think about what budget range makes sense for this?",helper:"Use open-ended conversation first, then tap what they mention.",quick:["Yes","Need a range first","Need to compare to current spend","Need team input","Prefer to review proposal first"],multi:true}
+};
+
+const signalMap = {"1 - very dissatisfied":["dissatisfied","pain-present","budget-later"],"2":["dissatisfied","pain-present"],"3":["mixed","pain-present"],"4":["mostly-satisfied","improvement-opportunity"],"5 - very satisfied":["satisfied","low-urgency"],"more consistency":["consistency","quality-gap"],"better communication":["communication","follow-up-gap"],"faster response":["response-time","accountability"],"less time managing vendors":["time-burden","too-many-vendors"],"better attention to detail":["attention-to-detail","quality-gap"],"fewer complaints":["complaints","reputation-risk"],"more accountability":["accountability","follow-up-gap"],"takes too much time":["time-burden"],"constant follow-up":["follow-up-gap","time-burden"],"frustration":["emotional-friction"],"complaints":["complaints","tenant-facing"],"affects reputation":["reputation-risk"],"distracts from other priorities":["time-burden"],"creates escalation":["escalation-risk"],"multiple vendors":["too-many-vendors"],"varies by site":["multi-site-complexity"],"team involved":["team-input"],"need multiple proposals":["shopping"],"current service issues":["urgency"],"need more consistency":["consistency","urgency"],"need a range first":["budget-cautious"],"need to compare to current spend":["current-spend-needed"],"need team input":["team-input","budget-later"],"prefer to review proposal first":["budget-later"],"customer complaints":["complaints","tenant-facing"],"tenant complaints":["complaints","tenant-facing"],"patient complaints":["complaints","tenant-facing"],"guest complaints":["complaints","tenant-facing"],"resident complaints":["complaints","tenant-facing"],"restrooms":["restrooms","visible-issue"],"floors always dirty":["floors","quality-gap"],"grease buildup":["grease","floors"],"showroom floors":["floors","visible-issue"],"glass always dirty":["glass","visible-issue"],"dust buildup":["dust"],"floor debris":["debris"],"high-touch surfaces":["high-touch"],"traffic":["traffic"],"high traffic wear":["traffic"]};
+
+const helpContent = {
+  prep:{title:'Pre-Call Help',bullets:['Fill in what you already know. Do not wait for perfect information.','Choose the closest industry group and business type. If needed, use Other and type the business.','Use Research Company and Research Contact as prep support, not as facts to read back to the prospect.','The goal on this page is simple: set context so discovery feels sharper and more specific.']},
+  qa:{title:'Dynamic Discovery Help',bullets:['Start with the question first. Let the prospect do most of the talking.','Tap anything they mention to reduce typing and capture signals quickly.','Use Your notes only for nuance, exact wording, or anything important that does not fit the taps.','You do not need to ask every question in order. If they answer multiple things at once, capture it and keep moving.','If a coaching pop-up appears, use it naturally. It is a reminder, not a script.']},
+  walk:{title:'Walk / Pricing Help',bullets:['Capture only what is needed to build accurate pricing and prepare proposal delivery.','Enter budget if they share it, and note confidence level if it feels estimated or sensitive.','Use Walk-Through Notes for visible issues, service-sensitive areas, and anything that changes scope.','Use Measurements / Scope Notes for the actual pricing drivers: flooring, fixtures, restrooms, square footage, and frequency needs.']},
+  summary:{title:'Summary Help',bullets:['Review the summary for accuracy before moving on.','Back To Discovery returns you to the discovery flow without clearing the session.','Export To AI generates the AI-ready report and shows it for manual copy if needed.','Close Session saves the session locally and returns you to the Launchpad.']}
+};
+
+const state = {currentQuestionIndex:0,answers:{},notes:{},selected:{},signals:{},generatedSummary:"",companyResearchText:"",contactResearchText:"",budgetUnlocked:false,dismissedCoachForQuestion:{},completedBusinessFollowups:[],lastCoachingTheme:null};
+let currentIdentity = {userId:'', userRole:'', managerId:'', active:false};
+const tabs = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.panel');
+function on(id,event,handler){
+  const el = document.getElementById(id);
+  if(el){ el.addEventListener(event,handler); return true; }
+  return false;
+}
+
+function scrollTopNow(){window.scrollTo({top:0,behavior:'auto'});document.documentElement.scrollTop=0;document.body.scrollTop=0;document.getElementById('topPage').scrollIntoView({behavior:'auto',block:'start'});}
+function allSignals(){return [...new Set(Object.values(state.signals).flat())]}
+function pretty(v){return v.replace(/-/g,' ').replace(/\b\w/g,s=>s.toUpperCase())}
+function getIndustryTypes(group){return INDUSTRIES[group]||[]}
+function fillIndustryGroup(){const el=document.getElementById('industryGroup'); if(!el) return; el.innerHTML='<option value="">Select one</option>'+Object.keys(INDUSTRIES).map(g=>`<option>${g}</option>`).join('')}
+function fillBusinessTypes(group){const el=document.getElementById('businessType'); if(!el) return; el.innerHTML='<option value="">Select one</option>'+getIndustryTypes(group).map(x=>`<option>${x.type}</option>`).join('')}
+function currentIndustry(){const g=document.getElementById('industryGroup').value; const t=document.getElementById('businessType').value; return (INDUSTRIES[g]||[]).find(x=>x.type===t)||null}
+function businessTypeLabel(){const bt=document.getElementById('businessType').value; const other=document.getElementById('otherBusinessText').value.trim(); return bt==="Other (Not Listed)" && other ? other : bt || 'Not provided'}
+
+function getBusinessFollowups(){
+  const industry=currentIndustry();
+  return industry?.followups || [];
+}
+function followupCovered(questionText, combinedText){
+  const stop = new Set(['what','when','where','which','how','who','does','the','and','are','most','often','more','much','this','that','for','with','into','from','your','during','after','before','have','has','been','would','could','should','their','they','them','show','space','areas','area','today']);
+  const words = questionText.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w => w && !stop.has(w));
+  const strong = words.filter(w => w.length >= 5);
+  const hits = strong.filter(w => combinedText.includes(w));
+  return hits.length >= 2 || (hits.length >= 1 && strong.length <= 2);
+}
+function getPendingBusinessFollowups(){
+  const all = getBusinessFollowups();
+  const combined = Object.keys(state.answers).map(k => `${state.answers[k]||''} ${state.notes[k]||''}`).join(' ').toLowerCase();
+  return all
+    .map((fq, idx) => ({idx, fq}))
+    .filter(item => !state.completedBusinessFollowups.includes(item.idx))
+    .filter(item => !followupCovered(item.fq, combined));
+}
+
+function discoveryFlow(){
+  const sat=state.answers.satisfaction||"";
+  const arr=[{...templates.satisfaction,id:'satisfaction'}];
+  if(sat && sat.startsWith('5')){arr.push({...templates.whatWorks,id:'whatWorks'});arr.push({...templates.improve,id:'improve'});}
+  else {arr.push({...templates.makeFive,id:'makeFive'});arr.push({...templates.painExpand,id:'painExpand'});}
+  const pending = getPendingBusinessFollowups();
+  if(pending.length){
+    const item = pending[0];
+    arr.push({...templates.bizFollowup,id:`bizFollowup_${item.idx}`,text:item.fq});
+  }
+  arr.push({...templates.impact,id:'impact'});
+  arr.push({...templates.setup,id:'setup'});
+  arr.push({...templates.decision,id:'decision'});
+  arr.push({...templates.whyNow,id:'whyNow'});
+  if(state.budgetUnlocked) arr.push({...templates.budget,id:'budget'});
+  return arr;
+}
+function currentQuestion(){return discoveryFlow()[state.currentQuestionIndex]}
+function painExpandQuick(){
+  const industry=currentIndustry();
+  if(industry) return [...industry.taps];
+  const group=document.getElementById('industryGroup').value;
+  const generic = {
+    "Retail / Customer Facing":["Floors","Restrooms","Trash","Customer complaints","Appearance issues","High traffic wear"],
+    "Medical / Clinical":["Restrooms","Waiting area","Visible patient areas","High-touch surfaces","Complaints"],
+    "Office / Professional":["Restrooms","Breakrooms","Trash","Common areas","Follow-up burden"],
+    "Industrial / Operations":["Dust","Debris","Restrooms","Safety concerns","Support areas"],
+    "Education / Community":["Restrooms","Floors","Common areas","Traffic","Complaints"],
+    "Hospitality / Residential":["Common areas","Restrooms","Floors","Occupant complaints"]
+  };
+  return generic[group] || ["Visible issues","Complaints","Time burden","Communication"];
+}
+function effectiveQuick(question){
+  const qtext = ((question?.text || question?.question || '') + ' ' + (question?.label || '')).toLowerCase();
+  const explicit = question?.answers || question?.quick || question?.chips || [];
+  if(Array.isArray(explicit) && explicit.length) return explicit;
+
+  if(qtext.includes('where do you see it showing up the most') || qtext.includes('where do you see it showing up')){
+    return ['Reception / Lobby','Restrooms','Breakrooms','Conference Rooms','Common Areas','Throughout the site'];
+  }
+  if(qtext.includes('who reports issues most often')){
+    return ['Property Manager','Front Desk / Reception','Employees / Staff','Clients / Visitors','Multiple Stakeholders'];
+  }
+  if(qtext.includes('how often are clients physically in the office') || qtext.includes('how frequently do clients visit')){
+    return ['Daily','Several Times Per Week','Occasionally','Rarely','Never'];
+  }
+  if(qtext.includes('what areas matter most') || qtext.includes('most visible') || qtext.includes('client-facing')){
+    return ['Reception Image','Restrooms','Conference Rooms','Discretion','Client Traffic'];
+  }
+  if(qtext.includes('when are issues usually noticed')){
+    return ['During Business Hours','After Hours','Next Morning','During Client Visits','Varies'];
+  }
+  if(qtext.includes('who owns the cleaning relationship') || qtext.includes('who manages the vendor')){
+    return ['Property Manager','Office Manager','Operations','Facilities','Shared Responsibility'];
+  }
+  return [];
+}
+
+function renderProgress(){const bar=document.getElementById('progressBar');bar.innerHTML='';discoveryFlow().forEach((_,i)=>{const d=document.createElement('div');d.className='qa-dot'+(i===state.currentQuestionIndex?' active':'');bar.appendChild(d)})}
+function syncHeroVisibility(){const active=[...document.querySelectorAll('.tab-btn')].find(t=>t.classList.contains('active'))?.dataset.tab; document.getElementById('heroBox').style.display = active==='prep' ? 'block' : 'none'}
+function switchTab(name){tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===name));panels.forEach(p=>p.classList.toggle('active',p.id===name));persist(); syncHeroVisibility(); setTimeout(scrollTopNow,0)}
+tabs.forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
+
+function selectedQuick(){return [...document.querySelectorAll('#quickAnswers .chip.active')].map(x=>x.textContent.trim())}
+function renderQuickAnswers(question){
+  const box=document.getElementById('quickAnswers'); box.innerHTML='';
+  const list=effectiveQuick(question);
+  const current=new Set(state.selected[question.id]||[]);
+  list.forEach(text=>{
+    const chip=document.createElement('div');
+    chip.className='chip'+(current.has(text)?' active':'');
+    chip.textContent=text;
+    chip.addEventListener('click',()=>{
+      if(question.multi) chip.classList.toggle('active');
+      else {[...box.querySelectorAll('.chip')].forEach(c=>c.classList.remove('active')); chip.classList.add('active')}
+      liveSync();
+    });
+    box.appendChild(chip);
+  });
+  box.classList.toggle('hidden', list.length===0);
+  box.previousElementSibling.classList.toggle('hidden', list.length===0);
+  box.previousElementSibling.previousElementSibling.classList.toggle('hidden', list.length===0);
+}
+function tagsFrom(questionId,selections,answer,note){
+  let tags=[]; (selections||[]).forEach(s=>{const k=s.toLowerCase(); if(signalMap[k]) tags=tags.concat(signalMap[k])});
+  const text=`${answer||''} ${note||''}`.toLowerCase();
+  if(text.includes('vendor')) tags.push('too-many-vendors');
+  if(text.includes('follow')) tags.push('follow-up-gap');
+  if(text.includes('time')) tags.push('time-burden');
+  if(text.includes('complaint')) tags.push('complaints');
+  if(text.includes('consistent')) tags.push('consistency');
+  if(text.includes('communicat')) tags.push('communication');
+  if(text.includes('reputation')) tags.push('reputation-risk');
+  if(text.includes('tenant')||text.includes('customer')||text.includes('patient')||text.includes('guest')||text.includes('resident')) tags.push('tenant-facing');
+  if(text.includes('stress')||text.includes('frustrat')) tags.push('emotional-friction');
+  if(text.includes('dust')) tags.push('dust');
+  if(text.includes('debris')) tags.push('debris');
+  if(text.includes('grease')) tags.push('grease');
+  if(text.includes('floor')) tags.push('floors');
+  return [...new Set(tags)];
+}
+function liveSync(){
+  const q=currentQuestion();
+  state.selected[q.id]=selectedQuick();
+  state.answers[q.id]=document.getElementById('qaAnswer').value.trim();
+  state.notes[q.id]=document.getElementById('qaExtraNote').value.trim();
+  state.signals[q.id]=tagsFrom(q.id,state.selected[q.id],state.answers[q.id],state.notes[q.id]);
+  updateTinyStatus(); persist();
+}
+function updateTinyStatus(){
+  const sigs=allSignals();
+  document.getElementById('tinyStatus').textContent = sigs.length?`Signals detected: ${sigs.slice(0,6).map(pretty).join(', ')}`:'No major signals captured yet.';
+}
+function renderQuestion(){
+  const q=currentQuestion();
+  document.getElementById('qLabel').textContent=q.label;
+  document.getElementById('qText').textContent=q.text;
+  document.getElementById('qHelper').textContent=q.helper;
+  document.getElementById('qaAnswer').value=state.answers[q.id]||'';
+  document.getElementById('qaExtraNote').value=state.notes[q.id]||'';
+  renderQuickAnswers(q); renderProgress(); updateTinyStatus(); setTimeout(scrollTopNow,0);
+}
+
+function coachForSignals(signals){
+  if(signals.includes('time-burden')) return {theme:'time-burden', bullets:['Repeat back the time burden in their words','Ask how often they have to step in','Ask what this takes them away from']};
+  if(signals.includes('too-many-vendors')) return {theme:'vendor-complexity', bullets:['Acknowledge the number of moving parts','Clarify what creates the most friction','Ask how coordination works today']};
+  if(signals.includes('complaints')||signals.includes('tenant-facing')) return {theme:'complaints', bullets:['Repeat the pain point in their words','Ask who notices the issue first','Ask what happens when it is not handled quickly']};
+  if(signals.includes('communication')||signals.includes('follow-up-gap')) return {theme:'communication', bullets:['Acknowledge the follow-up burden','Clarify how issues are communicated today','Ask what a good communication process would look like']};
+  if(signals.includes('consistency')||signals.includes('quality-gap')) return {theme:'consistency', bullets:['Reflect the inconsistency they described','Ask where it shows up most','Ask what done right looks like to them']};
+  if(signals.includes('reputation-risk')) return {theme:'reputation', bullets:['Acknowledge the visibility of the issue','Ask where perception matters most','Clarify who feels the impact first']};
+  if(signals.includes('team-input')) return {theme:'decision-team', bullets:['Clarify who influences the decision','Ask what matters most to those stakeholders','Confirm what could slow the process']};
+  return null;
+}
+function openPopup(title,bullets){document.getElementById('popupTitle').textContent=title;document.getElementById('popupBody').innerHTML=`<ul>${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;document.getElementById('popupOverlay').classList.add('open')}
+function closePopup(){document.getElementById('popupOverlay').classList.remove('open')}
+on('popupDismissBtn','click',()=>{const q=currentQuestion();state.dismissedCoachForQuestion[q.id]=true;closePopup();persist()});
+
+function maybeShowCoachAfterSave(previousSignals){
+  const q=currentQuestion();
+  if(state.dismissedCoachForQuestion[q.id]) return;
+  const newSignals=(state.signals[q.id]||[]).filter(s=>!previousSignals.includes(s));
+  const coach = coachForSignals(newSignals.length?newSignals:(state.signals[q.id]||[]));
+  if(!coach) return;
+  if(state.lastCoachingTheme === coach.theme) return;
+  state.lastCoachingTheme = coach.theme;
+  setTimeout(()=>openPopup('Quick Coaching Reminder',coach.bullets),120);
+}
+
+function progressHtml(){
+  const flow=discoveryFlow();
+  const rows=flow.filter(q=>(state.answers[q.id]||'').trim()||(state.notes[q.id]||'').trim()||(state.selected[q.id]||[]).length);
+  if(!rows.length) return 'No saved discovery data yet.';
+  return rows.map(q=>{
+    const taps=(state.selected[q.id]||[]).join(', ')||'None';
+    const ans=state.answers[q.id]||'None';
+    const note=state.notes[q.id]||'None';
+    const tags=(state.signals[q.id]||[]).map(pretty).join(', ')||'None';
+    return `<div class="answer-log-item"><strong>${q.label}: ${q.text}</strong><div><em>Taps:</em> ${taps}</div><div><em>Answer:</em> ${ans}</div><div><em>Note:</em> ${note}</div><div><em>Signals:</em> ${tags}</div></div>`;
+  }).join('');
+}
+on('viewProgressBtn','click',()=>{document.getElementById('progressBody').innerHTML=progressHtml();document.getElementById('progressOverlay').classList.add('open')});
+on('progressDismissBtn','click',()=>document.getElementById('progressOverlay').classList.remove('open'));
+
+function saveCurrent(){
+  const q=currentQuestion();
+  const previousSignals = state.signals[q.id] || [];
+  liveSync();
+  if(q.id.startsWith('bizFollowup_')){
+    const idx = Number(q.id.split('_')[1]);
+    if(!state.completedBusinessFollowups.includes(idx)) state.completedBusinessFollowups.push(idx);
+  }
+  maybeShowCoachAfterSave(previousSignals);
+}
+function shouldTriggerValueGate(){
+  if(state.budgetUnlocked) return false;
+  const sigs=allSignals();
+  const enoughPain=sigs.some(t=>['time-burden','consistency','complaints','communication','too-many-vendors','reputation-risk','quality-gap'].includes(t));
+  const enoughImpact=!!state.answers.impact||!!state.notes.impact||(state.selected.impact||[]).length;
+  const hasWhyNow=!!state.answers.whyNow||(state.selected.whyNow||[]).length;
+  return enoughPain&&enoughImpact&&hasWhyNow;
+}
+on('valueConfirmBtn','click',()=>{
+  state.budgetUnlocked=true;
+  document.getElementById('valueOverlay').classList.remove('open');
+  const flowAfter=discoveryFlow();
+  const budgetIndex=flowAfter.findIndex(q=>q.id==='budget');
+  state.currentQuestionIndex = budgetIndex >= 0 ? budgetIndex : flowAfter.length-1;
+  persist(); renderQuestion(); setTimeout(scrollTopNow,0);
+});
+
+function prevQuestion(){
+  saveCurrent();
+  if(state.currentQuestionIndex > 0){
+    state.currentQuestionIndex -= 1;
+    renderQuestion();
+  } else {
+    switchTab('prep');
+  }
+}
+function nextQuestion(){
+  saveCurrent();
+  if(shouldTriggerValueGate() && !state.budgetUnlocked && currentQuestion().id!=='budget'){
+    document.getElementById('valueOverlay').classList.add('open');
+    return;
+  }
+  const flow=discoveryFlow();
+  if(state.currentQuestionIndex<flow.length-1){
+    state.currentQuestionIndex+=1;
+    renderQuestion();
+  } else {
+    switchTab('walk')
+  }
+}
+on('prevQuestionBtn','click',prevQuestion);
+on('smartNextBtn','click',nextQuestion);
+
+
+
+
+
+function bindSingleSelectChipGroup(id){
+  const host = document.getElementById(id);
+  if(!host) return;
+  const syncState = () => {
+    if(!window.state) window.state = {};
+    if(!state.form) state.form = {};
+    state.form[id] = [...host.querySelectorAll('.chip.active')].map(x => x.textContent.trim());
+    persist();
+  };
+  host.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = (e) => {
+      e.preventDefault();
+      host.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      syncState();
+    };
+    chip.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      host.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      syncState();
+    }, {passive:false});
+  });
+  host.onclick = (e) => {
+    const chip = e.target.closest('.chip');
+    if(!chip || !host.contains(chip)) return;
+    host.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    syncState();
+  };
+}
+function bindStaticChipGroup(id){
+  const host = document.getElementById(id);
+  if(!host) return;
+  const stateKey = id === 'budgetSignals' ? 'budgetSignals' : id === 'proposalSignals' ? 'proposalSignals' : id;
+
+  const syncState = () => {
+    if(!window.state) window.state = {};
+    if(!state.form) state.form = {};
+    state.form[stateKey] = [...host.querySelectorAll('.chip.active')].map(x => x.textContent.trim());
+    persist();
+  };
+
+  host.querySelectorAll('.chip').forEach(chip => {
+    chip.onclick = (e) => {
+      e.preventDefault();
+      chip.classList.toggle('active');
+      syncState();
+    };
+    chip.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      chip.classList.toggle('active');
+      syncState();
+    }, {passive:false});
+  });
+
+  host.onclick = (e) => {
+    const chip = e.target.closest('.chip');
+    if(!chip || !host.contains(chip)) return;
+    chip.classList.toggle('active');
+    syncState();
+  };
+}
+function selectedFrom(id){return [...document.querySelectorAll(`#${id} .chip.active`)].map(x=>x.textContent.trim())}
+function budgetTransitionText(){
+  const sigs=allSignals(); const budgetChips=selectedFrom('budgetSignals');
+  if(document.getElementById('budgetMonthly').value.trim()) return 'Budget was captured. Keep the pricing discussion tied to the outcomes and service fit they already described.';
+  if(budgetChips.includes('Sensitive on price')||sigs.includes('budget-cautious')) return 'Budget appears sensitive. Keep the discussion practical and tied to scope and expected outcomes, not just the number.';
+  if(budgetChips.includes('Comparing to current spend')||sigs.includes('current-spend-needed')) return 'Use current spend as context, but anchor the conversation in what level of service they actually need.';
+  return 'Move into budget calmly after confirming value and fit. Use the pricing call to validate the range before proposal delivery if needed.';
+}
+on('suggestBudgetBtn','click',()=>{document.getElementById('budgetTransition').textContent=budgetTransitionText();persist()});
+
+function buildSummary(){
+  const company=document.getElementById('company').value.trim()||'Not provided';
+  const contact=document.getElementById('contact').value.trim()||'Not provided';
+  const role=document.getElementById('role').value.trim()||'Not provided';
+  const group=document.getElementById('industryGroup').value.trim()||'Not provided';
+  const bt=businessTypeLabel()||'Not provided';
+  const sites=document.getElementById('sites').value.trim()||'Not provided';
+  const website=document.getElementById('website').value.trim()||'Not provided';
+  const context=document.getElementById('context').value.trim()||'None entered';
+  const approach=document.getElementById('approach').value.trim()||'No approach entered';
+  const flow=discoveryFlow();
+  const qaText=flow.filter(q=>(state.answers[q.id]||'').trim()||(state.notes[q.id]||'').trim()||(state.selected[q.id]||[]).length).map(q=>{
+    const taps=(state.selected[q.id]||[]).join(', ')||'None';
+    const ans=state.answers[q.id]||'None';
+    const note=state.notes[q.id]||'None';
+    const signals=(state.signals[q.id]||[]).map(pretty).join(', ')||'None';
+    return `${q.label}: ${q.text}\nTaps: ${taps}\nAnswer: ${ans}\nRep Note: ${note}\nSignals: ${signals}`;
+  }).join('\n\n');
+  const industry=currentIndustry();
+  const scopeHook=industry?industry.summaryHook:(group?`${group} environment where cleanliness, consistency, and ease of management affect perception and operations.`:'No business type selected');
+  const outcomeSignals=selectedFrom('outcomeSignals');
+  const outcomeNotes=(document.getElementById('outcomeNotes')?.value || '').trim()||'None entered';
+  state.generatedSummary=`DISCOVERY SUMMARY
+
+Prospect / Property:
+- Company: ${company}
+- Contact: ${contact}
+- Role: ${role}
+- Industry Group: ${group}
+- Business Type: ${bt}
+- Sites / Buildings: ${sites}
+- Website: ${website}
+
+Pre-Call Context:
+${context}
+
+Suggested Meeting Approach:
+${approach}
+
+Company Research Report:
+${state.companyResearchText||'No company research generated'}
+
+Contact Research Report:
+${state.contactResearchText||'No contact research generated'}
+
+Discovery Capture:
+${qaText||'No discovery answers saved'}
+
+Detected Signals:
+- ${allSignals().map(pretty).join(', ')||'None'}
+
+Industry Pricing / Scope Focus:
+- ${industry ? industry.pricingDrivers.map(pretty).join(', ') : 'Industry-level fallback used'}
+- Summary hook: ${scopeHook}
+
+Budget / Current Provider Capture:
+- Expected monthly range: ${document.getElementById('budgetMonthly').value.trim()||'Not captured'}
+- Budget confidence: ${document.getElementById('budgetConfidence').value.trim()||'Not captured'}
+- Current provider: ${document.getElementById('currentVendor').value.trim()||'Not captured'}
+- Time with current provider: ${document.getElementById('vendorTenure').value.trim()||'Not captured'}
+
+Walk-Through Notes:
+${document.getElementById('walkNotes').value.trim()||'No walk notes entered'}
+
+Measurements / Scope Notes:
+${document.getElementById('measurementNotes').value.trim()||'No measurement notes entered'}
+
+Budget / Proposal Readiness:
+- Budget signals: ${selectedFrom('budgetSignals').join(', ')||'None selected'}
+- Proposal signals: ${selectedFrom('proposalSignals').join(', ')||'None selected'}
+
+Suggested Budget Transition:
+${budgetTransitionText()}
+
+Pricing Call / Proposal Delivery Plan:
+${document.getElementById('pricingCallPlan').value.trim()||'No plan entered'}
+
+Outcome Tracking:
+- ${selectedFrom('outcomeSignals').join(', ')||'No outcome selected'}
+Outcome Notes:
+${(document.getElementById('outcomeNotes')?.value || '').trim()||'None entered'}
+
+Internal Use Reminder:
+- Discovery remains discovery.
+- Proposal delivery is where pain points should be rehashed and connected back to how City Wide solves them.`;
+  document.getElementById('summaryOutput').textContent=state.generatedSummary;
+  persist(); switchTab('summary'); setTimeout(scrollTopNow,0);
+}
+on('buildSummaryBtn','click',buildSummary);
+
+
+async function tryCopy(text){try{await navigator.clipboard.writeText(text);return true}catch(e){return false}}
+on('exportToAIBtn','click',async()=>{
+  const latest = state.generatedSummary || document.getElementById('summaryOutput').textContent;
+  const finalText=`${hiddenAIPrompt}\n\n${latest}`;
+  document.getElementById('aiFallbackTitle').classList.remove('hidden');
+  const box=document.getElementById('aiFallbackBox');
+  box.classList.remove('hidden');
+  box.value=finalText;
+  const ok=await tryCopy(finalText);
+  box.focus(); box.select();
+  setTimeout(scrollTopNow,0);
+  if(!ok){ alert('AI-ready text is shown below for manual copy.'); }
+});
+on('returnToDiscoveryBtn','click',()=>{switchTab('qa');});
+on('closeSessionBtn','click',()=>{closeDiscovery();});
+
+function openHelp(kind){
+  const cfg = helpContent[kind];
+  if(!cfg) return;
+  document.getElementById('helpTitle').textContent = cfg.title;
+  document.getElementById('helpBody').innerHTML = `<ul>${cfg.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`;
+  document.getElementById('helpOverlay').classList.add('open');
+}
+document.querySelectorAll('.help-btn').forEach(btn=>btn.addEventListener('click',()=>openHelp(btn.dataset.help)));
+on('helpDismissBtn','click',()=>document.getElementById('helpOverlay').classList.remove('open'));
+
+function persist(){
+  const payload={meta:{
+    userId: currentIdentity.userId || '',
+    userRole: currentIdentity.userRole || '',
+    managerId: currentIdentity.managerId || '',
+    savedAt: new Date().toISOString()
+  },state,form:{
+    company:document.getElementById('company').value,contact:document.getElementById('contact').value,role:document.getElementById('role').value,
+    industryGroup:document.getElementById('industryGroup').value,businessType:document.getElementById('businessType').value,otherBusinessText:document.getElementById('otherBusinessText').value,sites:document.getElementById('sites').value,
+    website:document.getElementById('website').value,phone:document.getElementById('phone').value,email:document.getElementById('email').value,approach:document.getElementById('approach').value,context:document.getElementById('context').value,
+    budgetMonthly:document.getElementById('budgetMonthly').value,budgetConfidence:document.getElementById('budgetConfidence').value,currentVendor:document.getElementById('currentVendor').value,vendorTenure:document.getElementById('vendorTenure').value,
+    walkNotes:document.getElementById('walkNotes').value,measurementNotes:document.getElementById('measurementNotes').value,pricingCallPlan:document.getElementById('pricingCallPlan').value,
+    budgetSignals:selectedFrom('budgetSignals'),proposalSignals:selectedFrom('proposalSignals'),outcomeSignals:selectedFrom('outcomeSignals'),outcomeNotes:document.getElementById('outcomeNotes').value,budgetTransition:document.getElementById('budgetTransition').textContent,
+    activeTab:[...tabs].find(t=>t.classList.contains('active'))?.dataset.tab||'prep'
+  }};
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
+}
+function restore(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return;
+  try{
+    const data = JSON.parse(raw);
+    const meta = data.meta || {};
+    const identity = currentIdentity.userId ? currentIdentity : (JSON.parse(localStorage.getItem(ACTIVE_USER_KEY) || '{"userId":"","userRole":"","managerId":"","active":false}'));
+    if(!identity.userId) return;
+    if((meta.userId || '').trim().toLowerCase() !== (identity.userId || '').trim().toLowerCase()) return;
+
+    Object.assign(state, data.state || {});
+    const f = data.form || {};
+    const setVal = (id, val='') => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+
+    setVal('company', f.company);
+    setVal('contact', f.contact);
+    setVal('role', f.role);
+    fillIndustryGroup();
+    setVal('industryGroup', f.industryGroup);
+    fillBusinessTypes(f.industryGroup || '');
+    setVal('businessType', f.businessType);
+    toggleOtherBusiness();
+    setVal('otherBusinessText', f.otherBusinessText);
+    setVal('sites', f.sites);
+    setVal('website', f.website);
+    setVal('phone', f.phone);
+    setVal('email', f.email);
+    setVal('approach', f.approach);
+    setVal('context', f.context);
+    setVal('budgetMonthly', f.budgetMonthly);
+    setVal('budgetConfidence', f.budgetConfidence);
+    setVal('currentVendor', f.currentVendor);
+    setVal('vendorTenure', f.vendorTenure);
+    setVal('walkNotes', f.walkNotes);
+    setVal('measurementNotes', f.measurementNotes);
+    setVal('pricingCallPlan', f.pricingCallPlan);
+    setVal('outcomeNotes', f.outcomeNotes);
+
+    if(typeof setChipSelections === 'function'){
+      setChipSelections('budgetSignals', f.budgetSignals || []);
+      setChipSelections('proposalSignals', f.proposalSignals || []);
+      setChipSelections('outcomeSignals', f.outcomeSignals || []);
+    }
+    if(window.state?.form){ state.form.budgetSignals = f.budgetSignals || []; state.form.proposalSignals = f.proposalSignals || []; state.form.outcomeSignals = f.outcomeSignals || []; }
+    if(f.budgetTransition){
+      const el = document.getElementById('budgetTransition');
+      if(el) el.textContent = f.budgetTransition;
+    }
+    if(state.generatedSummary){
+      const out = document.getElementById('summaryOutput');
+      if(out) out.textContent = state.generatedSummary;
+    }
+    if(typeof updateTinyStatus === 'function') updateTinyStatus();
+    if(typeof renderQuestion === 'function') renderQuestion();
+    switchTab(f.activeTab || 'prep');
+  }catch(e){
+    console.error('Restore failed', e);
+  }
+}
+function setChipSelections(id,values){const set=new Set(values||[]); document.querySelectorAll(`#${id} .chip`).forEach(chip=>chip.classList.toggle('active',set.has(chip.textContent.trim())))}
+
+function toggleOtherBusiness(){
+  const show=document.getElementById('businessType').value==="Other (Not Listed)";
+  document.getElementById('otherBusinessWrap').classList.toggle('hidden',!show);
+}
+on('industryGroup','change',e=>{fillBusinessTypes(e.target.value); toggleOtherBusiness(); state.completedBusinessFollowups=[]; persist()});
+on('businessType','change',()=>{toggleOtherBusiness(); state.completedBusinessFollowups=[]; persist()});
+
+['company','contact','role','industryGroup','businessType','otherBusinessText','sites','website','phone','email','approach','context','budgetMonthly','budgetConfidence','currentVendor','vendorTenure','walkNotes','measurementNotes','pricingCallPlan','editableSummary'].forEach(id=>{const el=document.getElementById(id); el.addEventListener('input',persist); el.addEventListener('change',persist)});
+
+
+function updateNetworkBadge(){const badge=document.getElementById('netStatus'); if(navigator.onLine){badge.textContent='Online'; badge.className='badge online'} else {badge.textContent='Offline / Weak Internet Mode'; badge.className='badge offline'}}
+window.addEventListener('online',updateNetworkBadge); window.addEventListener('offline',updateNetworkBadge);
+
+
+function openPreCallReview(){
+  buildPreCallReview();
+  const overlay = document.getElementById('precallOverlay');
+  if(overlay){
+    overlay.classList.add('open');
+    overlay.scrollTop = 0;
+  }
+}
+function goToDiscoveryFromPrecall(){
+  setLauncherVisible(false);
+  switchTab('qa');
+  state.currentQuestionIndex = 0;
+  renderQuestion();
+}
+function buildPreCallReview(){
+  const company=(document.getElementById('company').value||'Not provided').trim();
+  const contact=(document.getElementById('contact').value||'Not provided').trim();
+  const role=(document.getElementById('role').value||'Not provided').trim();
+  const group=(document.getElementById('industryGroup').value||'Not provided').trim();
+  const bt=businessTypeLabel();
+  const website=(document.getElementById('website').value||'Not provided').trim();
+  const phone=(document.getElementById('phone').value||'Not provided').trim();
+  const email=(document.getElementById('email').value||'Not provided').trim();
+  const sites=(document.getElementById('sites').value||'Not provided').trim();
+  const industry=currentIndustry();
+  let motivations=[];
+  const roleText=role.toLowerCase();
+  if(roleText.includes('property')) motivations=['Reduce time spent managing vendors','Prevent complaints and visible misses','Get reliable follow-up without extra effort'];
+  else if(roleText.includes('operations')||roleText.includes('facility')) motivations=['Consistency across the operation','Accountability and response speed','Reduced friction for the team'];
+  else if(roleText.includes('owner')||roleText.includes('president')||roleText.includes('gm')) motivations=['Dependability','Budget fit','Business image and customer perception'];
+  else motivations=['Consistency','Ease of management','Confidence in execution'];
+
+  const concerns = industry ? industry.pricingDrivers.map(pretty) : ['Restrooms','Floors','Visible areas','Traffic / usage'];
+  const summaryHook = industry ? industry.summaryHook : 'General commercial environment where visible cleanliness, consistency, and ease of management matter.';
+  const body = `<div class="summary-box"><strong>Prospect Snapshot</strong>
+- Company: ${company}
+- Contact: ${contact}
+- Title: ${role}
+- Industry Group: ${group}
+- Business Type: ${bt}
+- Sites / Buildings: ${sites}
+- Phone: ${phone}
+- Email: ${email}
+- Website: ${website}
+
+<strong>Likely Decision Motivations</strong>
+- ${motivations.join('\n- ')}
+
+<strong>Common Janitorial Concerns</strong>
+- ${concerns.join('\n- ')}
+
+<strong>Business-Type Context</strong>
+- ${summaryHook}
+
+<strong>Suggested Discovery Mindset</strong>
+- Focus on visible pain first
+- Clarify impact on their time or team
+- Build value before budget</div>`;
+  const target = document.getElementById('precallBody');
+  if(target){
+    target.innerHTML = body;
+    target.scrollTop = 0;
+  }
+}
+on('completePreCallBtn','click', openPreCallReview);
+on('precallBeginBtn','click', beginDiscoveryFromReport);
+on('precallCloseBtn','click', closePrecallReport);
+on('precallSaveBtn','click', savePrecallForLater);
+on('toQaBtn','click', goToDiscoveryFromPrecall);
+
+function beginDiscoveryFromReport(){
+  const overlay = document.getElementById('precallOverlay');
+  if(overlay) overlay.classList.remove('open');
+  setLauncherVisible(false);
+  switchTab('qa');
+  state.currentQuestionIndex = 0;
+  renderQuestion();
+}
+function closePrecallReport(){
+  const overlay = document.getElementById('precallOverlay');
+  if(overlay) overlay.classList.remove('open');
+}
+function savePrecallForLater(){
+  saveSessionRecord();
+  const overlay = document.getElementById('precallOverlay');
+  if(overlay) overlay.classList.remove('open');
+  renderRecentSessionsPreview();
+  renderManagerTools();
+}
+function buildCurrentPayload(){
+  persist();
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw) {
+    try { return JSON.parse(raw); } catch(e) {}
+  }
+  return {state, form:{}};
+}
+function saveSessionRecord(){
+  const payload = buildCurrentPayload();
+  const form = payload.form || {};
+  const savedAt = new Date().toISOString();
+  const identity = currentIdentity.userId ? currentIdentity : (JSON.parse(localStorage.getItem(ACTIVE_USER_KEY) || '{"userId":"","userRole":"","managerId":"","active":false}'));
+  const record = {
+    version: 1,
+    userId: identity.userId || '',
+    userRole: identity.userRole || '',
+    managerId: identity.managerId || '',
+    company: (form.company || 'Unnamed Company').trim() || 'Unnamed Company',
+    contact: (form.contact || '').trim(),
+    title: (form.role || '').trim(),
+    savedAt,
+    sessionData: payload
+  };
+  const sessionKey = 'cw_saved_session_' + savedAt;
+  localStorage.setItem(sessionKey, JSON.stringify(record));
+  return sessionKey;
+}
+function closeDiscovery(){
+  saveSessionRecord();
+  localStorage.removeItem(STORAGE_KEY);
+  clearAllFormFields();
+  setLauncherVisible(true);
+  switchTab('prep');
+  renderRecentSessionsPreview();
+  renderManagerTools();
+}
+
+
+
+
+function getUsers(){
+  try{ return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }catch(e){ return []; }
+}
+function saveUsers(users){
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+function ensureDefaultUsers(){
+  const users = getUsers();
+  const setOrAdd = (userObj) => {
+    const idx = users.findIndex(u => ((u.userId || '').trim().toLowerCase() === userObj.userId.trim().toLowerCase()));
+    if(idx === -1) users.push(userObj);
+    else users[idx] = {...users[idx], ...userObj};
+  };
+  const danielPw = users.find(u => ((u.userId || '').trim().toLowerCase() === 'daniel brown'))?.password || '';
+  const jodyPw = users.find(u => ((u.userId || '').trim().toLowerCase() === 'jody wray'))?.password || '';
+  setOrAdd({userId:'Daniel Brown', userRole:'Manager', managerId:'', password:danielPw, active:true});
+  setOrAdd({userId:'Jody Wray', userRole:'Manager', managerId:'Daniel Brown', password:jodyPw, active:true});
+  setOrAdd({userId:'Bill Hawkins', userRole:'Administrator', managerId:'Jody Wray', password:'Bill1965#', active:true});
+  saveUsers(users);
+}
+function ensurePilotUserAccess(entered){
+  const normalized = ((entered?.userId) || '').trim().toLowerCase();
+  if(normalized !== 'bill hawkins') return;
+  const users = getUsers();
+  const idx = users.findIndex(u => ((u.userId || '').trim().toLowerCase() === 'bill hawkins'));
+  if(idx === -1){
+    users.push({userId:'Bill Hawkins', userRole:'Administrator', managerId:'Jody Wray', password:'Bill1965#', active:true});
+  } else {
+    users[idx] = {...users[idx], userId:'Bill Hawkins', userRole:'Administrator', managerId:'Jody Wray', password:'Bill1965#', active:true};
+  }
+  saveUsers(users);
+}
+function getAdminPassword(){
+  const fallback = ['city','wide','pilot'].join('');
+  return localStorage.getItem(ADMIN_PASSWORD_KEY) || fallback;
+}
+function setAdminPassword(value){
+  localStorage.setItem(ADMIN_PASSWORD_KEY, value);
+}
+
+function findUserByName(userId){
+  const normalized = (userId || '').trim().toLowerCase();
+  return getUsers().find(u => ((u.userId || '').trim().toLowerCase() === normalized));
+}
+function resetLaunchpadLogin(){
+  const userEl = document.getElementById('launchUserId');
+  const passEl = document.getElementById('launchPassword');
+  if(userEl) userEl.value = '';
+  if(passEl) passEl.value = '';
+  const overlays = ['userNotFoundOverlay','passwordIncorrectOverlay','userInactiveOverlay'];
+  overlays.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('open');
+  });
+  setLauncherVisible(true);
+  try{ if(userEl) userEl.focus(); }catch(e){}
+}
+function getLaunchIdentity(){
+  return {
+    userId: (document.getElementById('launchUserId')?.value || '').trim(),
+    password: (document.getElementById('launchPassword')?.value || '').trim()
+  };
+}
+function setLaunchIdentity(userId){
+  const uid = document.getElementById('launchUserId');
+  if(uid) uid.value = userId || '';
+}
+function validUserOrPopup(){
+  const entered = getLaunchIdentity();
+  const cleanPassword = (entered.password || '').trim();
+  if(!entered.userId || !cleanPassword){
+    alert('Enter your username and password.');
+    return null;
+  }
+  ensurePilotUserAccess(entered);
+  let users = getUsers();
+  let user = findUserByName(entered.userId);
+
+  if(!users.length){
+    user = {userId: entered.userId.trim(), userRole:'Manager', managerId:'', password:cleanPassword, active:true};
+    saveUsers([user]);
+  } else {
+    if(!user){
+      document.getElementById('userNotFoundOverlay').classList.add('open');
+      return null;
+    }
+    if(user.active === false){
+      document.getElementById('userInactiveOverlay').classList.add('open');
+      return null;
+    }
+    if((user.password || '').trim() !== cleanPassword){
+      document.getElementById('passwordIncorrectOverlay').classList.add('open');
+      return null;
+    }
+  }
+
+  currentIdentity = {
+    userId:user.userId,
+    userRole:user.userRole,
+    managerId:user.managerId || '',
+    active:user.active !== false
+  };
+  localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(currentIdentity));
+  renderManagerTools();
+  return currentIdentity;
+}
+
+
+
+function startSessionFlow(){
+  const identity = validUserOrPopup();
+  if(!identity) return;
+  if(identity.userRole === 'Manager' || identity.userRole === 'Administrator'){
+    const overlay = document.getElementById('managerStageOverlay');
+    if(overlay) overlay.classList.add('open');
+  } else {
+    const overlay = document.getElementById('repStageOverlay');
+    if(overlay) overlay.classList.add('open');
+  }
+}
+function closeRepStage(){
+  const overlay = document.getElementById('repStageOverlay');
+  if(overlay) overlay.classList.remove('open');
+}
+function closeManagerStage(){
+  const overlay = document.getElementById('managerStageOverlay');
+  if(overlay) overlay.classList.remove('open');
+}
+function beginRepNewSurvey(){
+  closeRepStage();
+  resetActiveSession();
+  clearAllFormFields();
+  fillIndustryGroup();
+  fillBusinessTypes('');
+  switchTab('prep');
+  persist();
+  setLauncherVisible(false) 
+}
+function openRepImportSurvey(){
+  closeRepStage();
+  importDiscoveryList();
+}
+function openManagerLaunchpad(){
+  closeManagerStage();
+  resetActiveSession();
+  clearAllFormFields();
+  fillIndustryGroup();
+  fillBusinessTypes('');
+  switchTab('prep');
+  persist();
+  setLauncherVisible(false);
+}
+function showAdminPage(name){
+  const pages = {
+    home: document.getElementById('adminHomePage'),
+    rep: document.getElementById('adminAddRepPage'),
+    manager: document.getElementById('adminAddManagerPage'),
+    reports: document.getElementById('adminReportsPage'),
+    security: document.getElementById('adminSecurityPage')
+  };
+  Object.entries(pages).forEach(([k, el]) => { if(el) el.classList.toggle('active', k === name); });
+
+  const btnMap = {
+    rep: document.getElementById('adminHomeAddRepBtn'),
+    manager: document.getElementById('adminHomeAddManagerBtn'),
+    reports: document.getElementById('adminHomeReportsBtn'),
+    security: document.getElementById('adminHomeSecurityBtn')
+  };
+  Object.values(btnMap).forEach(el => { if(el){ el.classList.remove('primary'); el.classList.add('secondary'); }});
+  if(name === 'rep' && btnMap.rep){ btnMap.rep.classList.add('primary'); btnMap.rep.classList.remove('secondary'); }
+  if(name === 'manager' && btnMap.manager){ btnMap.manager.classList.add('primary'); btnMap.manager.classList.remove('secondary'); }
+  if(name === 'reports' && btnMap.reports){ btnMap.reports.classList.add('primary'); btnMap.reports.classList.remove('secondary'); }
+  if(name === 'security' && btnMap.security){ btnMap.security.classList.add('primary'); btnMap.security.classList.remove('secondary'); }
+
+  const admin = document.getElementById('adminOverlay');
+  const popup = admin?.querySelector('.popup');
+  if(popup) popup.scrollTop = 0;
+
+  renderAdminUserList();
+  renderAdminReports();
+
+  if(name === 'rep'){
+    const el = document.getElementById('adminCreateUserName');
+    if(el){ try{ el.focus(); }catch(e){} }
+  }
+  if(name === 'manager'){
+    const el = document.getElementById('adminCreateManagerName');
+    if(el){ try{ el.focus(); }catch(e){} }
+  }
+}
+function renderAdminReports(){
+  const host = document.getElementById('adminReportsList');
+  if(!host) return;
+  const users = getUsers().slice().sort((a,b)=>(a.userId||'').localeCompare(b.userId||''));
+  const sessions = parseSavedSessionsRaw();
+
+  if(!users.length){
+    host.innerHTML = '<div>No users available.</div>';
+    return;
+  }
+
+  const authorityLabel = (role) => {
+    if(role === 'Administrator') return 'Administrator Authority';
+    if(role === 'Manager') return 'Manager Authority';
+    if(role === 'Rep') return 'Rep Access';
+    return 'Standard Access';
+  };
+
+  host.innerHTML = users.map(u => {
+    const directs = users.filter(x => x.managerId === u.userId && x.userId !== u.userId);
+    const saved = sessions.filter(s => (s.userId || '').toLowerCase() === (u.userId || '').toLowerCase());
+    const won = saved.filter(s => (s.sessionData?.form?.outcomeSignals || []).includes('Closed Won')).length;
+    const lost = saved.filter(s => (s.sessionData?.form?.outcomeSignals || []).includes('Closed Lost')).length;
+    const proposal = saved.filter(s => (s.sessionData?.form?.outcomeSignals || []).includes('Proposal Sent')).length;
+    const followup = saved.filter(s => (s.sessionData?.form?.outcomeSignals || []).includes('Follow-Up Needed')).length;
+    const reportsTo = u.managerId ? u.managerId : 'None / Top-Level';
+    const actionBtn = u.active === false
+      ? `<button class="ghost" onclick="adminReactivateUser('${u.userId.replace(/'/g,"&#39;")}')">Reactivate User</button>`
+      : `<button class="ghost" onclick="adminDeactivateUser('${u.userId.replace(/'/g,"&#39;")}')">Deactivate User</button>`;
+
+    return `<div class="recent-session-item">
+      <div style="font-weight:800">${u.userId}</div>
+      <div style="font-size:.82rem;color:#64748b">${u.userRole} • ${authorityLabel(u.userRole)}</div>
+      <div style="font-size:.82rem;margin-top:6px">Status: ${u.active===false ? 'Inactive' : 'Active'}</div>
+      <div style="font-size:.82rem;margin-top:4px">Reports To: ${reportsTo}</div>
+      <div style="font-size:.82rem;margin-top:4px">Direct Reports: ${directs.length ? directs.map(d => d.userId).join(', ') : 'None'}</div>
+      <div style="font-size:.82rem;margin-top:4px">Saved Sessions: ${saved.length}</div><div style="font-size:.82rem;margin-top:4px">Proposal Sent: ${proposal} • Follow-Up Needed: ${followup} • Closed Won: ${won} • Closed Lost: ${lost}</div>
+      <div class="btns"><button class="ghost" onclick="openEditUser('${u.userId.replace(/'/g,"&#39;")}')">Edit User</button>${actionBtn}</div>
+    </div>`;
+  }).join('');
+}
+function returnToLaunchpadKeepLogin(){
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.remove('open');
+  closeRepStage();
+  closeManagerStage();
+  setLauncherVisible(true);
+}
+function saveCreatedManager(){
+  const name = (document.getElementById('adminCreateManagerName')?.value || '').trim();
+  const password = (document.getElementById('adminCreateManagerPassword')?.value || '').trim();
+  const assignedManager = (document.getElementById('adminManagerReportsTo')?.value || '').trim();
+  if(!name || !password){ alert('Enter manager username and password.'); return; }
+  const users = getUsers();
+  const existing = users.find(u => (u.userId || '').toLowerCase() == name.toLowerCase());
+  if(existing){
+    if(existing.active === false){ alert('That user already exists and is inactive. Use Reactivate User in Authorized Users.'); }
+    else { alert('That user already exists.'); }
+    return;
+  }
+  users.push({userId:name, userRole:'Manager', managerId:assignedManager, password, active:true});
+  saveUsers(users);
+  renderAdminUserList();
+  openUserAddedPopup(`Manager added successfully. Username: ${name}. Reports To: ${assignedManager || 'None / Top-Level'}.`);
+}
+
+function populateEditUserManagers(currentUserId){
+  const sel = document.getElementById('editUserManager');
+  if(!sel) return;
+  const eligible = getUsers()
+    .filter(u => u.active !== false && (u.userRole === 'Manager' || u.userRole === 'Administrator') && u.userId !== currentUserId)
+    .sort((a,b)=>(a.userId||'').localeCompare(b.userId||''));
+  sel.innerHTML = '<option value="">None / Top-Level</option>' + eligible.map(u => `<option>${u.userId}</option>`).join('');
+}
+function openEditUser(userId){
+  const users = getUsers();
+  const user = users.find(u => u.userId === userId);
+  if(!user) return;
+  const overlay = document.getElementById('editUserOverlay');
+  const original = document.getElementById('editUserOriginalId');
+  const name = document.getElementById('editUserName');
+  const pw = document.getElementById('editUserPassword');
+  populateEditUserManagers(user.userId);
+  const mgr = document.getElementById('editUserManager');
+  if(original) original.value = user.userId || '';
+  if(name) name.value = user.userId || '';
+  if(pw) pw.value = user.password || '';
+  if(mgr) mgr.value = user.managerId || '';
+  if(overlay) overlay.classList.add('open');
+}
+function closeEditUserOverlay(){
+  const overlay = document.getElementById('editUserOverlay');
+  if(overlay) overlay.classList.remove('open');
+}
+function openEditConfirmed(message){
+  const box = document.getElementById('editConfirmedMessage');
+  const overlay = document.getElementById('editConfirmedOverlay');
+  if(box) box.textContent = message || 'User edits were saved successfully.';
+  if(overlay) overlay.classList.add('open');
+}
+function closeEditConfirmedToDashboard(){
+  const overlay = document.getElementById('editConfirmedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.add('open');
+  showAdminPage('home');
+}
+function closeEditConfirmedToAddUser(){
+  const overlay = document.getElementById('editConfirmedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.add('open');
+  showAdminPage('rep');
+}
+function closeEditConfirmedToLaunchpad(){
+  const overlay = document.getElementById('editConfirmedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  returnToLaunchpadKeepLogin();
+}
+function saveUserEdits(){
+  const originalId = (document.getElementById('editUserOriginalId')?.value || '').trim();
+  const newName = (document.getElementById('editUserName')?.value || '').trim();
+  const newPassword = (document.getElementById('editUserPassword')?.value || '').trim();
+  const newManager = (document.getElementById('editUserManager')?.value || '').trim();
+  if(!originalId || !newName || !newPassword){
+    alert('Username and password are required.');
+    return;
+  }
+  const users = getUsers();
+  const duplicate = users.find(u => (u.userId || '').toLowerCase() === newName.toLowerCase() && u.userId !== originalId);
+  if(duplicate){
+    alert('Another user already uses that username.');
+    return;
+  }
+  const originalUser = users.find(u => u.userId === originalId);
+  const updated = users.map(u => {
+    if(u.userId !== originalId) return u;
+    return {...u, userId:newName, password:newPassword, managerId:newManager};
+  }).map(u => {
+    // maintain hierarchy links when a user's name changes
+    if(u.managerId === originalId) return {...u, managerId:newName};
+    return u;
+  });
+  saveUsers(updated);
+
+  // update saved session ownership references
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.startsWith('cw_saved_session_')){
+      try{
+        const parsed = JSON.parse(localStorage.getItem(key));
+        if((parsed.userId || '') === originalId){
+          parsed.userId = newName;
+          parsed.managerId = newManager;
+          if(parsed.sessionData?.meta){
+            parsed.sessionData.meta.userId = newName;
+            parsed.sessionData.meta.managerId = newManager;
+          }
+          localStorage.setItem(key, JSON.stringify(parsed));
+        } else if((parsed.managerId || '') === originalId){
+          parsed.managerId = newName;
+          if(parsed.sessionData?.meta?.managerId === originalId){
+            parsed.sessionData.meta.managerId = newName;
+          }
+          localStorage.setItem(key, JSON.stringify(parsed));
+        }
+      }catch(e){}
+    }
+  }
+
+  if(currentIdentity.userId === originalId){
+    currentIdentity.userId = newName;
+    currentIdentity.managerId = newManager;
+    localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(currentIdentity));
+    setLaunchIdentity(newName);
+  }
+
+  closeEditUserOverlay();
+  renderAdminUserList();
+  renderAdminReports();
+  renderAdminAssignedManagers();
+  openEditConfirmed(`User edits saved successfully. Username: ${newName}. Reports To: ${newManager || 'None / Top-Level'}.`);
+}
+function renderAdminAssignedManagers(){
+  const eligible = getUsers()
+    .filter(u => u.active !== false && (u.userRole === 'Manager' || u.userRole === 'Administrator'))
+    .sort((a,b)=>(a.userId||'').localeCompare(b.userId||''));
+  const repSel = document.getElementById('adminAssignedManager');
+  const mgrSel = document.getElementById('adminManagerReportsTo');
+  if(repSel) repSel.innerHTML = '<option value="">Select manager</option>' + eligible.map(u => `<option>${u.userId}</option>`).join('');
+  if(mgrSel) mgrSel.innerHTML = '<option value="">None / Top-Level</option>' + eligible.map(u => `<option>${u.userId}</option>`).join('');
+}
+function resetAdminCreateForm(){
+  const repName = document.getElementById('adminCreateUserName');
+  const repPass = document.getElementById('adminCreateUserPassword');
+  const repMgr = document.getElementById('adminAssignedManager');
+  const mgrName = document.getElementById('adminCreateManagerName');
+  const mgrPass = document.getElementById('adminCreateManagerPassword');
+  const mgrReports = document.getElementById('adminManagerReportsTo');
+  if(repName) repName.value = '';
+  if(repPass) repPass.value = '';
+  if(repMgr) repMgr.value = '';
+  if(mgrName) mgrName.value = '';
+  if(mgrPass) mgrPass.value = '';
+  if(mgrReports) mgrReports.value = '';
+  const admin = document.getElementById('adminOverlay');
+  const popup = admin?.querySelector('.popup');
+  if(popup) popup.scrollTop = 0;
+}
+function saveCreatedUser(){
+  createUserWithRole('Rep');
+}
+function openUserAddedPopup(message){
+  const msg = document.getElementById('userAddedMessage');
+  const overlay = document.getElementById('userAddedOverlay');
+  if(msg) msg.textContent = message;
+  if(overlay) overlay.classList.add('open');
+}
+function closeUserAddedAddAnother(){
+  const overlay = document.getElementById('userAddedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.add('open');
+  resetAdminCreateForm();
+  showAdminPage('rep');
+}
+function closeUserAddedToDashboard(){
+  const overlay = document.getElementById('userAddedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.add('open');
+  showAdminPage('home');
+}
+function closeUserAddedToLaunchpad(){
+  const overlay = document.getElementById('userAddedOverlay');
+  if(overlay) overlay.classList.remove('open');
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.remove('open');
+  setLauncherVisible(true);
+  resetAdminCreateForm();
+}
+function returnAdminToLaunchpad(){
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.remove('open');
+  setLauncherVisible(true);
+}
+function saveAndCloseApp(){
+  saveSessionRecord();
+  localStorage.removeItem(STORAGE_KEY);
+  setLauncherVisible(true);
+  switchTab('prep');
+  renderRecentSessionsPreview();
+  renderManagerTools();
+}
+function adminDeactivateUser(userId){
+  const users = getUsers().map(u => u.userId === userId ? {...u, active:false} : u);
+  saveUsers(users);
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if(raw?.meta?.userId && raw.meta.userId === userId){
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }catch(e){}
+  renderAdminUserList();
+  renderAdminAssignedManagers();
+}
+function adminReactivateUser(userId){
+  const users = getUsers().map(u => u.userId === userId ? {...u, active:true} : u);
+  saveUsers(users);
+  renderAdminUserList();
+  renderAdminAssignedManagers();
+}
+function renderAdminUserList(){
+  const host = document.getElementById('adminUserList');
+  if(!host) return;
+  const users = getUsers().slice().sort((a,b)=>(a.userId||'').localeCompare(b.userId||''));
+  if(!users.length){
+    host.innerHTML = '<div>No authorized users yet.</div>';
+    renderAdminAssignedManagers();
+    renderAdminReports();
+    return;
+  }
+  host.innerHTML = users.map(u => `<div class="recent-session-item"><div style="font-weight:800">${u.userId}</div><div style="font-size:.82rem;color:#64748b">${u.userRole} • ${u.active===false ? 'Inactive' : 'Active'} • Reports To: ${u.managerId ? u.managerId : 'None / Top-Level'}</div><div class="btns"><button class="ghost" onclick="openEditUser('${u.userId.replace(/'/g,"&#39;")}')">Edit User</button>${u.active===false ? `<button class="ghost" onclick="adminReactivateUser('${u.userId.replace(/'/g,"&#39;")}')">Reactivate User</button>` : `<button class="ghost" onclick="adminDeactivateUser('${u.userId.replace(/'/g,"&#39;")}')">Deactivate User</button>`}</div></div>`).join('');
+  renderAdminAssignedManagers();
+  renderAdminReports();
+}
+function createUserWithRole(role){
+  const name = (document.getElementById('adminCreateUserName')?.value || '').trim();
+  const password = (document.getElementById('adminCreateUserPassword')?.value || '').trim();
+  const assignedManager = (document.getElementById('adminAssignedManager')?.value || '').trim();
+  if(!name || !password){ alert(`Enter ${role.toLowerCase()} username and password.`); return; }
+  if(!assignedManager){ alert('Select who this rep reports to.'); return; }
+  const users = getUsers();
+  const existing = users.find(u => (u.userId || '').toLowerCase() === name.toLowerCase());
+  if(existing){
+    if(existing.active === false){ alert('That user already exists and is inactive. Use Reactivate User in Authorized Users.'); }
+    else { alert('That user already exists.'); }
+    return;
+  }
+  users.push({userId:name, userRole:'Rep', managerId: assignedManager, password, active:true});
+  saveUsers(users);
+  renderAdminUserList();
+  openUserAddedPopup(`Rep added successfully. Username: ${name}. Reports To: ${assignedManager}.`);
+}
+function openChangePasswordConfirm(){
+  const val = (document.getElementById('newAdminPassword')?.value || '').trim();
+  if(!val){ alert('Enter a new admin password.'); return; }
+  document.getElementById('changePasswordConfirmOverlay').classList.add('open');
+}
+function confirmAdminPasswordChange(){
+  const val = (document.getElementById('newAdminPassword')?.value || '').trim();
+  if(!val){ alert('Enter a new admin password.'); return; }
+  setAdminPassword(val);
+  document.getElementById('newAdminPassword').value = '';
+  document.getElementById('changePasswordConfirmOverlay').classList.remove('open');
+  document.getElementById('adminOverlay').classList.add('open');
+  alert('Admin password updated.');
+}
+function openMasterResetWarning(){
+  document.getElementById('masterResetWarningOverlay').classList.add('open');
+}
+function confirmMasterResetWarning(){
+  document.getElementById('masterResetWarningOverlay').classList.remove('open');
+  document.getElementById('masterResetFinalOverlay').classList.add('open');
+}
+function executeMasterSystemReset(){
+  const keysToRemove = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && (key.startsWith('cw_saved_session_') || key.startsWith('city_wide_final_pilot_build_v24_'))){
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  alert('System reset complete.');
+  location.reload();
+}
+function renderManagerTools(){ return; }
+function addTeamMember(){ return; }
+function deactivateUser(userId){
+  if(currentIdentity.userRole !== 'Manager') return;
+  const users = getUsers().map(u => (u.userId === userId && u.managerId === currentIdentity.userId) ? {...u, active:false} : u);
+  saveUsers(users);
+  renderManagerTools();
+}
+function renderTeamMembers(){ return; }
+function renderTeamActivity(){ return; }
+function setLauncherVisible(show){
+  const lp = document.getElementById('launcherPanel');
+  if(lp) lp.style.display = show ? 'block' : 'none';
+}
+function resetActiveSession(){
+  localStorage.removeItem(STORAGE_KEY);
+  state.currentQuestionIndex=0;
+  state.answers={}; state.notes={}; state.selected={}; state.signals={}; state.generatedSummary="";
+  state.companyResearchText=""; state.contactResearchText=""; state.budgetUnlocked=false; state.dismissedCoachForQuestion={};
+  state.completedBusinessFollowups=[]; state.lastCoachingTheme=null;
+}
+function clearAllFormFields(){
+  ['company','contact','role','otherBusinessText','sites','website','phone','email','approach','context','budgetMonthly','currentVendor','vendorTenure','walkNotes','measurementNotes','pricingCallPlan','editableSummary'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const ig=document.getElementById('industryGroup'); if(ig) ig.value='';
+  fillBusinessTypes('');
+  const bt=document.getElementById('businessType'); if(bt) bt.value='';
+  const bc=document.getElementById('budgetConfidence'); if(bc) bc.value='';
+  document.querySelectorAll('.chip.active').forEach(ch=>ch.classList.remove('active'));
+  const so=document.getElementById('summaryOutput'); if(so) so.textContent='No summary yet. Complete the first three tabs, then tap “Generate Summary.”';
+  const btg=document.getElementById('budgetTransition'); if(btg) btg.textContent='Budget guidance appears here once enough trust and value have been established.';
+  toggleOtherBusiness();
+}
+function renderRecentSessionsPreview(){
+  const host = document.getElementById('recentSessionsPreview');
+  if(!host) return;
+  const entered = getLaunchIdentity();
+  if(!entered.userId || !entered.password){
+    host.innerHTML = '<div>Enter your username and password to view recent sessions.</div>';
+    return;
+  }
+  const user = findUserByName(entered.userId);
+  if(!user || user.active === false || user.password !== entered.password){
+    host.innerHTML = '<div>No saved sessions available.</div>';
+    return;
+  }
+  currentIdentity = {userId:user.userId, userRole:user.userRole, managerId:user.managerId || '', active:user.active !== false};
+  const sessions = parseSavedSessions().slice(0,3);
+  const activeDraft = getActiveSessionForCurrentUser();
+  const combined = activeDraft ? [activeDraft, ...sessions].slice(0,3) : sessions;
+  if(!combined.length){
+    host.innerHTML = '<div>No saved sessions yet for this user.</div>';
+    renderManagerTools();
+    return;
+  }
+  host.innerHTML = combined.map(s => `
+    <div class="recent-session-item">
+      <button class="recent-session-btn" onclick="loadSavedSession('${s.key}')">
+        <div style="font-weight:800">${s.company}${s.isActiveDraft ? ' (Active Draft)' : ''}</div>
+        <div style="font-size:.82rem;color:#64748b">${s.contact || 'No contact name'}${s.title ? ' • ' + s.title : ''}</div>
+        <div style="font-size:.78rem;color:#8a9aab">${formatSavedAt(s.savedAt)}</div>
+      </button>
+    </div>
+  `).join('');
+  renderManagerTools();
+}
+function beginNewDiscovery(){
+  startSessionFlow();
+}
+function formatSavedAt(value){
+  try{
+    const d = new Date(value);
+    if(Number.isNaN(d.getTime())) return '';
+    return d.toLocaleString();
+  }catch(e){ return ''; }
+}
+function normalizeSavedRecord(key, parsed){
+  if(parsed && parsed.sessionData){
+    return {
+      key,
+      userId: parsed.userId || '',
+      userRole: parsed.userRole || '',
+      managerId: parsed.managerId || '',
+      company: parsed.company || 'Unnamed Company',
+      contact: parsed.contact || '',
+      title: parsed.title || '',
+      savedAt: parsed.savedAt || key.replace('cw_saved_session_',''),
+      sessionData: parsed.sessionData
+    };
+  }
+  const form = (parsed && parsed.form) || {};
+  return {
+    key,
+    userId: '',
+    userRole: '',
+    managerId: '',
+    company: form.company || 'Unnamed Company',
+    contact: form.contact || '',
+    title: form.role || '',
+    savedAt: key.replace('cw_saved_session_',''),
+    sessionData: parsed
+  };
+}
+function parseSavedSessionsRaw(){
+  const sessions = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.startsWith('cw_saved_session_')){
+      try{
+        const parsed = JSON.parse(localStorage.getItem(key));
+        sessions.push(normalizeSavedRecord(key, parsed));
+      }catch(e){}
+    }
+  }
+  sessions.sort((a,b)=>{
+    const byCompany = a.company.localeCompare(b.company);
+    if(byCompany !== 0) return byCompany;
+    return (b.savedAt || '').localeCompare(a.savedAt || '');
+  });
+  return sessions;
+}
+function parseSavedSessions(){
+  const identity = currentIdentity.userId ? currentIdentity : getLaunchIdentity();
+  return parseSavedSessionsRaw().filter(s => (s.userId || '').toLowerCase() === (identity.userId || '').toLowerCase() && (s.userRole || '') === (identity.userRole || ''));
+}
+function getActiveSessionForCurrentUser(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if(!raw) return null;
+    const meta = raw.meta || {};
+    const identity = currentIdentity.userId ? currentIdentity : {userId:'', userRole:''};
+    if(!identity.userId || !identity.userRole) return null;
+    if((meta.userId || '').toLowerCase() !== (identity.userId || '').toLowerCase()) return null;
+    if((meta.userRole || '') !== (identity.userRole || '')) return null;
+    return {
+      key: '__active__',
+      userId: meta.userId || '',
+      userRole: meta.userRole || '',
+      managerId: meta.managerId || '',
+      company: (raw.form?.company || 'Untitled Active Session'),
+      contact: raw.form?.contact || '',
+      title: raw.form?.role || '',
+      savedAt: meta.savedAt || '',
+      sessionData: raw,
+      isActiveDraft: true
+    };
+  }catch(e){
+    return null;
+  }
+}
+function clearActiveIdentity(){
+  currentIdentity = {userId:'', userRole:'', managerId:'', active:false};
+  localStorage.removeItem(ACTIVE_USER_KEY);
+  const uid = document.getElementById('launchUserId');
+  const pw = document.getElementById('launchPassword');
+  if(uid) uid.value = '';
+  if(pw) pw.value = '';
+}
+
+function importDiscoveryList(){
+  const body = document.getElementById('importBody');
+  const identity = validUserOrPopup();
+  if(!identity){
+    body.innerHTML = '<div>User Not Found</div>';
+    document.getElementById('importOverlay').classList.add('open');
+    return;
+  }
+  const sessions = parseSavedSessions();
+  const activeDraft = getActiveSessionForCurrentUser();
+  const combined = activeDraft ? [activeDraft, ...sessions] : sessions;
+  if(!combined.length){
+    body.innerHTML = '<div>No saved sessions found for this user.</div>';
+    document.getElementById('importOverlay').classList.add('open');
+    return;
+  }
+  body.innerHTML = combined.map(s => `
+    <div style="padding:10px 0;border-bottom:1px solid #e6eef7">
+      <button class="ghost" style="width:100%;text-align:left" onclick="loadSavedSession('${s.key}')">
+        <div style="font-weight:800">${s.company}${s.isActiveDraft ? ' (Active Draft)' : ''}</div>
+        <div style="font-size:.82rem;color:#64748b">${s.contact || 'No contact name'}${s.title ? ' • ' + s.title : ''}</div>
+        <div style="font-size:.78rem;color:#8a9aab">${formatSavedAt(s.savedAt)}</div>
+      </button>
+    </div>
+  `).join('');
+  document.getElementById('importOverlay').classList.add('open');
+}
+function applyLoadedPayload(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(currentIdentity));
+  clearAllFormFields();
+  restore();
+  setLauncherVisible(false);
+  document.getElementById('importOverlay').classList.remove('open');
+  switchTab('prep');
+}
+function loadSavedSession(key){
+  const identity = validUserOrPopup();
+  if(!identity) return;
+  if(key === '__active__'){
+    const active = getActiveSessionForCurrentUser();
+    if(active) applyLoadedPayload(active.sessionData);
+    return;
+  }
+  const raw = localStorage.getItem(key);
+  if(!raw) return;
+  try{
+    const parsed = JSON.parse(raw);
+    const record = normalizeSavedRecord(key, parsed);
+    applyLoadedPayload(record.sessionData);
+  }catch(e){}
+}
+
+function openAdminPasswordDialog(){
+  closeManagerStage();
+  const admin = document.getElementById('adminOverlay');
+  if(admin) admin.classList.add('open');
+  showAdminPage('home');
+}
+function closeAdminPasswordDialog(){ return; }
+function toggleAdminPasswordVisibility(){ return; }
+function verifyAdminPassword(){ return; }
+on('startSessionBtn','click', startSessionFlow);
+on('importCloseBtn','click', ()=>document.getElementById('importOverlay').classList.remove('open'));
+on('launchUserId','input', ()=>{ renderRecentSessionsPreview(); });
+on('launchPassword','input', ()=>{ renderRecentSessionsPreview(); });
+const launchPasswordEl = document.getElementById('launchPassword');
+if(launchPasswordEl){
+  launchPasswordEl.addEventListener('keypress', function(e){
+    if(e.key === 'Enter') startSessionFlow();
+  });
+}
+on('adminFunctionsBtn','click', openAdminPasswordDialog);
+
+on('changePasswordCancelBtn','click', ()=>{ document.getElementById('changePasswordConfirmOverlay').classList.remove('open'); document.getElementById('adminOverlay').classList.add('open'); });
+on('changePasswordConfirmBtn','click', confirmAdminPasswordChange);
+on('masterResetCancelBtn','click', ()=>{ document.getElementById('masterResetWarningOverlay').classList.remove('open'); document.getElementById('adminOverlay').classList.add('open'); });
+on('masterResetConfirmBtn','click', confirmMasterResetWarning);
+on('masterResetFinalCancelBtn','click', ()=>{ document.getElementById('masterResetFinalOverlay').classList.remove('open'); document.getElementById('adminOverlay').classList.add('open'); });
+on('masterResetExecuteBtn','click', executeMasterSystemReset);
+on('userNotFoundCloseBtn','click', resetLaunchpadLogin);
+on('passwordIncorrectCloseBtn','click', resetLaunchpadLogin);
+on('userInactiveCloseBtn','click', resetLaunchpadLogin);
+on('prepSaveCloseBtn','click', saveAndCloseApp);
+on('qaSaveCloseBtn','click', saveAndCloseApp);
+on('walkSaveCloseBtn','click', saveAndCloseApp);
+on('summarySaveCloseBtn','click', saveAndCloseApp);
+
+fillIndustryGroup(); fillBusinessTypes(''); toggleOtherBusiness(); updateNetworkBadge(); renderQuestion(); syncHeroVisibility();
+bindStaticChipGroup('budgetSignals');
+bindStaticChipGroup('proposalSignals');
+bindSingleSelectChipGroup('outcomeSignals');
+if(window.state?.form){
+  setChipSelections('budgetSignals', state.form.budgetSignals || []);
+  setChipSelections('proposalSignals', state.form.proposalSignals || []);
+  setChipSelections('outcomeSignals', state.form.outcomeSignals || []);
+}
+ensureDefaultUsers();
+switchTab('prep');
+setLauncherVisible(true);
+try{
+  const savedIdentity = JSON.parse(localStorage.getItem(ACTIVE_USER_KEY) || '{}');
+  if(savedIdentity.userId){
+    currentIdentity = savedIdentity;
+    setLaunchIdentity(savedIdentity.userId);
+  }
+}catch(e){}
+renderRecentSessionsPreview();
+renderManagerTools();
+renderAdminUserList();
+showAdminPage('home');
+</script>
+</body>
+</html>
